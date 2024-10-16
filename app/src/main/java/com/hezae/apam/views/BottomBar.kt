@@ -19,8 +19,7 @@ import com.hezae.apam.data.Screen
 @Composable
 fun BottomBar(currentPage:  Int, onPageSelected: (Int) -> Unit, items : List<Screen>) {
     NavigationBar(
-        modifier = Modifier
-            .height(60.dp),
+        modifier = Modifier,
         containerColor = Color.Transparent
     ) {
         items.forEachIndexed { index, screen ->

@@ -46,7 +46,7 @@ val MicaDarkColorScheme = darkColorScheme(
 
 
 val MicaLightColorScheme = lightColorScheme(
-    primary = Color(0xFF2196F3),            // 明亮的蓝色
+    primary = Color(0xCE2196F3),            // 明亮的蓝色
     onPrimary = Color.White,                 // 在主要颜色上的白色文本
     primaryContainer = Color(0xFFBBDEFB),   // 主要容器的较浅蓝色
     onPrimaryContainer = Color.White,        // 在主要容器上的白色文本

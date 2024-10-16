@@ -1,4 +1,5 @@
 package com.hezae.apam.activities
+import CameraScreen
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -9,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -24,7 +24,6 @@ import com.hezae.apam.data.Style
 import com.hezae.apam.ui.themes.APAMTheme
 import com.hezae.apam.viewmodels.MainViewModel
 import com.hezae.apam.views.BottomBar
-import com.hezae.apam.views.camera.CameraScreen
 import com.hezae.apam.views.find.FindScreen
 import com.hezae.apam.views.home.HomeScreen
 import com.hezae.apam.views.user.UserScreen

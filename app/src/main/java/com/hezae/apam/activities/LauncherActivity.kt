@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -40,7 +41,6 @@ class LauncherActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        window.statusBarColor = Color(0xFFF7F8FA).toArgb()
         setContent {
             APAMTheme(style = Style.MICA) {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
@@ -51,61 +51,64 @@ class LauncherActivity : ComponentActivity() {
             }
         }
     }
-}
 
-@Composable
-fun Greeting(modifier: Modifier = Modifier) {
-    var seconds by remember { mutableIntStateOf(3) }
-    var isNavigated by remember { mutableStateOf(false) }
-    val context = LocalContext.current
+    @Composable
+    fun Greeting(modifier: Modifier = Modifier) {
+        var seconds by remember { mutableIntStateOf(3) }
+        var isNavigated by remember { mutableStateOf(false) }
+        val context = LocalContext.current
 
-    Box(
-        modifier = modifier.fillMaxSize(),
-    ) {
-        // 跳过按钮位于右上角
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.TopEnd)
-                .padding(8.dp),
-            horizontalArrangement = Arrangement.End,
-            verticalAlignment = Alignment.CenterVertically
+        Box(
+            modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
         ) {
-            SkipButton(
-                seconds = seconds,
-                onClick = {
-                    if (!isNavigated) {
-                        isNavigated = true
-                        navigateToMain(context)
+            // 跳过按钮位于右上角
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.TopEnd)
+                    .padding(8.dp),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                SkipButton(
+                    seconds = seconds,
+                    onClick = {
+                        if (!isNavigated) {
+                            isNavigated = true
+                            navigateToMain(context)
+                        }
                     }
-                }
-            )
+                )
+            }
+            Row(
+                modifier = Modifier .fillMaxWidth().align(Alignment.Center),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
+
+                ) {
+                Text(stringResource(R.string.app_name))
+            }
         }
-        Row(
-            modifier = Modifier .fillMaxWidth().align(Alignment.Center),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(stringResource(R.string.app_name))
+
+        // 倒计时逻辑
+        LaunchedEffect(key1 = seconds, key2 = isNavigated) {
+            if (seconds > 0 && !isNavigated) {
+                delay(1000L)
+                seconds--
+            } else if (seconds <= 0 && !isNavigated) {
+                isNavigated = true
+                navigateToMain(context)
+            }
         }
     }
 
-    // 倒计时逻辑
-    LaunchedEffect(key1 = seconds, key2 = isNavigated) {
-        if (seconds > 0 && !isNavigated) {
-            delay(1000L)
-            seconds--
-        } else if (seconds <= 0 && !isNavigated) {
-            isNavigated = true
-            navigateToMain(context)
+    private fun navigateToMain(context: Context) {
+        val intent = Intent(context, MainActivity::class.java)
+        context.startActivity(intent)
+        if (context is Activity) {
+            context.finish()
         }
     }
 }
 
-private fun navigateToMain(context: Context) {
-    val intent = Intent(context, MainActivity::class.java)
-    context.startActivity(intent)
-    if (context is Activity) {
-        context.finish()
-    }
-}
+
