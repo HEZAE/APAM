@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">APAM</string>
+    <string name="title_activity_launcher">LauncherActivity</string>
+    <string name="title_activity_Main">MainActivity</string>
+    <string name="Main_Home">Home</string>
+    <string name="Main_Camera">Camera</string>
+    <string name="Main_Find">Find</string>
+    <string name="Main_User">User</string>
+    <string name="Style_Mica">Mica</string>
+    <string name="Style_Dark">Dark</string>
+    <string name="Style_Twi">Twi</string>
+    <string name="select_theme">SelectTheme</string>
+    <string name="skip">Skip</string>
+
+</resources>

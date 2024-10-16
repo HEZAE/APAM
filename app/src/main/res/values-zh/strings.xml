@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">AI摄影助手</string>
+    <string name="title_activity_launcher">启动</string>
+    <string name="title_activity_Main">主页面</string>
+    <string name="Main_Home">主页</string>
+    <string name="Main_Camera">拍摄</string>
+    <string name="Main_Find">发现</string>
+    <string name="Main_User">用户</string>
+    <string name="Style_Dark">暗黑</string>
+    <string name="Style_Twi">黄昏</string>
+    <string name="Style_Mica">云母</string>
+
+
+
+    <string name="select_theme">选择主题</string>
+    <string name="skip">跳过</string>
+
+</resources>
