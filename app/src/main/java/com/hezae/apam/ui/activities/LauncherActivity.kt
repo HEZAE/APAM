@@ -29,12 +29,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.hezae.apam.R
 import com.hezae.apam.tools.ManagerTheme
-import com.hezae.apam.ui.composes.buttons.SkipButton
+import com.hezae.apam.ui.buttons.SkipButton
 import com.hezae.apam.ui.themes.defaultTheme.APAMTheme
 import kotlinx.coroutines.delay
 
@@ -42,10 +43,11 @@ class LauncherActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        ManagerTheme.init(this)
         setContent {
-            ManagerTheme.init(this)
             val selectedTheme = ManagerTheme.currentTheme
             APAMTheme(style = selectedTheme) {
+                window.statusBarColor = MaterialTheme.colorScheme.background.toArgb()
                 Scaffold(modifier = Modifier.fillMaxSize().padding(0.dp).windowInsetsPadding(
                     WindowInsets.systemBars) // 避免内容延伸到状态栏和导航栏
                 ) { innerPadding ->

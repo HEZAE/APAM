@@ -17,12 +17,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
-import com.hezae.apam.data.Screen
+import com.hezae.apam.datas.Screen
 import com.hezae.apam.tools.ManagerTheme
-import com.hezae.apam.ui.composes.bottomBars.BottomBar
-import com.hezae.apam.ui.composes.screens.FindScreen
-import com.hezae.apam.ui.composes.screens.HomeScreen
-import com.hezae.apam.ui.composes.screens.UserScreen
+import com.hezae.apam.ui.bottomBars.BottomBar
+import com.hezae.apam.ui.screens.FindScreen
+import com.hezae.apam.ui.screens.HomeScreen
+import com.hezae.apam.ui.screens.UserScreen
 import com.hezae.apam.ui.themes.defaultTheme.APAMTheme
 import com.hezae.apam.ui.viewmodels.MainViewModel
 import kotlinx.coroutines.launch
@@ -43,13 +43,13 @@ class MainActivity : ComponentActivity() {
                     Scaffold(
                         bottomBar = {
                             BottomBar(
-                                currentPage = pagerState.currentPage,
-                                onPageSelected = { targetPage ->
+                                pagerState.currentPage,
+                                { targetPage ->
                                     coroutineScope.launch {
                                         pagerState.animateScrollToPage(targetPage)
                                     }
                                 },
-                                items = items
+                                items
                             )
                         },
                         modifier = Modifier.fillMaxSize().padding(0.dp).windowInsetsPadding(WindowInsets.systemBars) // 避免内容延伸到状态栏和导航栏

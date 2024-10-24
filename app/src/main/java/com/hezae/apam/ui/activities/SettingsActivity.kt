@@ -19,10 +19,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
-import com.hezae.apam.data.Style
+import com.hezae.apam.datas.Style
 import com.hezae.apam.tools.ManagerTheme
-import com.hezae.apam.ui.composes.screens.SettingsScreen
-import com.hezae.apam.ui.composes.topbars.SettingsTopBar
+import com.hezae.apam.ui.screens.SettingsScreen
+import com.hezae.apam.ui.topbars.SettingsTopBar
 import com.hezae.apam.ui.themes.defaultTheme.APAMTheme
 
 class SettingsActivity : ComponentActivity() {

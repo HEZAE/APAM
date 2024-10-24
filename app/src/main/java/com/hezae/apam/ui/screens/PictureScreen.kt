@@ -7,7 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.hezae.apam.ui.activities.CameraActivity
-import com.hezae.apam.ui.composes.buttons.StripButton
+import com.hezae.apam.ui.buttons.StripButton
 
 @Composable
 fun PictureScreen(modifier: Modifier = Modifier) {

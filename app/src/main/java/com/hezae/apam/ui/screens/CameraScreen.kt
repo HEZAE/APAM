@@ -1,4 +1,4 @@
-package com.hezae.apam.ui.composes.screens
+package com.hezae.apam.ui.screens
 
 import android.Manifest
 import android.content.ContentValues

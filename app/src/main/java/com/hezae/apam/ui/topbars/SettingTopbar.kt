@@ -1,4 +1,4 @@
-package com.hezae.apam.ui.composes.topbars
+package com.hezae.apam.ui.topbars
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth

@@ -3,7 +3,7 @@ package com.hezae.apam.ui.themes.defaultTheme
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import com.hezae.apam.data.Style
+import com.hezae.apam.datas.Style
 import com.hezae.apam.ui.themes.defaultTheme.Dark.DarkStyleDarkColorScheme
 import com.hezae.apam.ui.themes.defaultTheme.Dark.DarkStyleLightColorScheme
 import com.hezae.apam.ui.themes.defaultTheme.Mica.MicaDarkColorScheme

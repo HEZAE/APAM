@@ -1,4 +1,4 @@
-package com.hezae.apam.ui.composes.others
+package com.hezae.apam.ui.others
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Box
@@ -20,10 +20,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import com.hezae.apam.R
-import com.hezae.apam.data.Style
-import com.hezae.apam.ui.composes.buttons.StripIconButton
+import com.hezae.apam.datas.Style
+import com.hezae.apam.ui.buttons.StripIconButton
 
 @Composable
 fun ThemeSelector(selectedTheme: Style, onThemeChange: (Style) -> Unit) {
@@ -42,10 +43,10 @@ fun ThemeSelector(selectedTheme: Style, onThemeChange: (Style) -> Unit) {
             onDismissRequest = { expanded = false },
             modifier = Modifier
                 .align(Alignment.CenterStart) // 使下拉框居中
-                .padding(2.dp)
-                .fillMaxWidth(0.6f),
+                .padding(2.dp).fillMaxWidth(0.98f),
             shape = RoundedCornerShape(6.dp),
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.onBackground),
+            offset = DpOffset(0.dp, (0).dp)
         ) {
             styles.forEach { themeType ->
                 DropdownMenuItem(

@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import com.hezae.apam.tools.ManagerTheme
-import com.hezae.apam.ui.composes.screens.CameraScreen
+import com.hezae.apam.ui.screens.CameraScreen
 import com.hezae.apam.ui.themes.defaultTheme.APAMTheme
 
 class CameraActivity : ComponentActivity() {

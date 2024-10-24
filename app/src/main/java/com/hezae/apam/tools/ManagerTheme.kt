@@ -5,7 +5,7 @@ import android.content.SharedPreferences
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import com.hezae.apam.data.Style
+import com.hezae.apam.datas.Style
 
 object ManagerTheme {
     var currentTheme: Style by mutableStateOf(Style.MICA)

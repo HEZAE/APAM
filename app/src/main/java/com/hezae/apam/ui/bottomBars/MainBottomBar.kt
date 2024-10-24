@@ -1,4 +1,4 @@
-package com.hezae.apam.ui.composes.bottomBars
+package com.hezae.apam.ui.bottomBars
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.height
@@ -16,7 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.hezae.apam.data.Screen
+import com.hezae.apam.datas.Screen
 
 
 @Composable

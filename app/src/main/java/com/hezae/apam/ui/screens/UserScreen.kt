@@ -1,4 +1,4 @@
-package com.hezae.apam.ui.composes.screens
+package com.hezae.apam.ui.screens
 
 import android.content.Intent
 import androidx.compose.foundation.layout.Column
@@ -13,8 +13,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.hezae.apam.ui.activities.SettingsActivity
-import com.hezae.apam.ui.composes.buttons.StripIconButton
-import com.hezae.apam.ui.composes.others.Avatar
+import com.hezae.apam.ui.buttons.StripIconButton
+import com.hezae.apam.ui.others.Avatar
 
 @Composable
 fun UserScreen(modifier: Modifier) {

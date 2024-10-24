@@ -1,4 +1,4 @@
-package com.hezae.apam.data
+package com.hezae.apam.datas
 
 import com.hezae.apam.R
 

@@ -1,4 +1,4 @@
-package com.hezae.apam.ui.composes.others
+package com.hezae.apam.ui.others
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background

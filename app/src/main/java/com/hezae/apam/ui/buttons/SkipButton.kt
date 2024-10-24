@@ -1,4 +1,4 @@
-package com.hezae.apam.ui.composes.buttons
+package com.hezae.apam.ui.buttons
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding

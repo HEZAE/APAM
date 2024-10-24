@@ -1,4 +1,4 @@
-package com.hezae.apam.ui.composes.texts
+package com.hezae.apam.ui.texts
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material.icons.Icons
