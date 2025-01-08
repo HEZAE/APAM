@@ -10,7 +10,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import com.hezae.apam.tools.ManagerTheme
 import com.hezae.apam.ui.screens.CameraScreen
-import com.hezae.apam.ui.themes.defaultTheme.APAMTheme
+import com.hezae.apam.ui.Themes.APAMTheme
 
 class CameraActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

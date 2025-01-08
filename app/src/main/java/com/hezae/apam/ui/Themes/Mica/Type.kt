@@ -1,4 +1,4 @@
-package com.hezae.apam.ui.themes.CameraTheme
+package com.hezae.apam.ui.Themes.Mica
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

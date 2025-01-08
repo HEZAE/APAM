@@ -1,4 +1,4 @@
-package com.hezae.apam.ui.themes.defaultTheme.Twi
+package com.hezae.apam.ui.Themes.Twi
 
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme

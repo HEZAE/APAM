@@ -1,4 +1,4 @@
-package com.hezae.apam.ui.themes.defaultTheme.Dark
+package com.hezae.apam.ui.Themes.Dark
 
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
