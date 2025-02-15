@@ -9,7 +9,7 @@ object RetrofitInstance {
     private val gson: Gson = GsonBuilder()
         .setLenient() // 设置宽松模式
         .create()
-    private const val BASE_URL = "http://10.0.0.201:8080"
+    private const val BASE_URL = "http://10.0.0.201:8000"
     val api: ApiService by lazy {
         Retrofit.Builder()
             .baseUrl(BASE_URL)

@@ -14,14 +14,12 @@ import retrofit2.http.POST
 interface ApiService {
 
     //获取Token
-    @FormUrlEncoded
-    @POST("user/token")
+    @POST("user/login")
     suspend fun login(
-        @Field("username") username: String,
-        @Field("password") password: String
+        @Body user: UserLogin
     ): Response<ApiResult<String>>
 
     //获取用户信息
-    @GET("user")
+    @GET("user/info")
     suspend fun getUserInfo(@Header("Authorization") token: String, ): Response<ApiResult<User>>
 }

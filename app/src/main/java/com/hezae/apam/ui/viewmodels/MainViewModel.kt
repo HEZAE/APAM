@@ -15,8 +15,8 @@ import com.hezae.apam.tools.RetrofitInstance
 import kotlinx.coroutines.launch
 
 class MainViewModel: ViewModel() {
-    var user  = mutableStateOf<User>( User("","","未知","",0,0.0f,0, ""))
-    var isLoadingUser = mutableStateOf(false)
+    var user  = mutableStateOf( User("","","未知","",0,0.0f,0f, 0,0,""))
+    private var isLoadingUser = mutableStateOf(false)
     fun getUser(token:String,onFinished : (ApiResult<String>) -> Unit){
         isLoadingUser.value = true
         viewModelScope.launch {

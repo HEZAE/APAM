@@ -97,7 +97,6 @@ fun PictureScreen(modifier: Modifier = Modifier) {
                     AtlasItem(),
                     AtlasItem()
                 ),
-                date = "2025年1月"
             ),
             AtlasLists(
                 atlasList = mutableListOf(
@@ -106,7 +105,6 @@ fun PictureScreen(modifier: Modifier = Modifier) {
                     AtlasItem(),
                     AtlasItem(),
                 ),
-                date = "2025年2月"
             ),
             AtlasLists(
                 atlasList = mutableListOf(
@@ -131,7 +129,6 @@ fun PictureScreen(modifier: Modifier = Modifier) {
                         isError = false
                     ),
                 ),
-                date = "2025年3月"
             )
         )
     }
@@ -231,7 +228,7 @@ fun PictureScreen(modifier: Modifier = Modifier) {
                                             .fillMaxHeight()
                                     ) {
                                         if (searchText.text.isEmpty()) {
-                                            Text(text = "请输入搜索内容")
+                                            Text(text = "搜索内容")
                                         }
                                         innerTextField()
                                     }
@@ -266,6 +263,18 @@ fun PictureScreen(modifier: Modifier = Modifier) {
                     IconButton(
                         onClick = {
                             // 点击事件
+                        },
+                    ) {
+                        Icon(
+                            imageVector = ImageVector.Companion.vectorResource(id = R.drawable.ic_add),
+                            contentDescription = "filter",
+                            Modifier.size(17.dp),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                    IconButton(
+                        onClick = {
+                            // 点击事件
                             moreMenu = !moreMenu
                         },
                     ) {
@@ -290,8 +299,9 @@ fun PictureScreen(modifier: Modifier = Modifier) {
                                         moreMenu = false
                                     }
                                 )
+
                                 DropdownMenuItem(
-                                    text = { Text(text = "从相册中选择") },
+                                    text = { Text(text = "从相册中选择上传") },
                                     onClick = {
                                     }
                                 )
@@ -313,7 +323,6 @@ fun PictureScreen(modifier: Modifier = Modifier) {
                             modifier = Modifier.padding(vertical = 5.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(text = atlasList.date)
                             Row(
                                 modifier = Modifier.weight(1f),
                                 horizontalArrangement = Arrangement.End

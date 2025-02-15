@@ -2,6 +2,7 @@ package com.hezae.apam.ui.others
 
 import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -69,12 +70,12 @@ fun Avatar(
     contentDescription: String? = "用户头像" // 可选的内容描述
 ) {
     val context = LocalContext.current
-    val cloudyProgress by remember { mutableFloatStateOf(0.1f) }
+    var cloudyProgress by remember { mutableFloatStateOf(0.1f) }
     val cloudyAnimatedProgress by animateFloatAsState(
         targetValue = cloudyProgress,
         animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec, label = ""
     )
-    val tokenProgress by remember { mutableFloatStateOf(0.25f) }
+    var tokenProgress by remember { mutableFloatStateOf(0.25f) }
     val tokenAnimatedProgress by animateFloatAsState(
         targetValue = tokenProgress,
         animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec, label = ""
@@ -85,7 +86,14 @@ fun Avatar(
         val token: String? = sharedPreferences.getString("token", null)
         if (token != null) {
             Log.e("token", token)
-            mainViewModel.getUser(token) {}
+            mainViewModel.getUser(token) {
+               if(it.success){
+                   cloudyProgress  =  mainViewModel.user.value.capacity_used/mainViewModel.user.value.capacity
+                   tokenProgress = (mainViewModel.user.value.count_used.toFloat()/mainViewModel.user.value.count)
+               }else{
+                   Toast.makeText(context, it.msg, Toast.LENGTH_SHORT).show()
+               }
+            }
         }
     }
     Box(
@@ -178,14 +186,6 @@ fun Avatar(
                             color = MaterialTheme.colorScheme.primary.copy(alpha = 0.75f)
                         )
                         Spacer(Modifier.width(5.dp))
-//                        for (i in 1..mainViewModel.user.value.level) {
-//                            Icon(
-//                                imageVector = Icons.Default.Star,
-//                                contentDescription = contentDescription,
-//                                modifier = Modifier.size(18.dp),
-//                                tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.75f)
-//                            )
-//                        }
                     }
                 }
 
@@ -224,7 +224,7 @@ fun Avatar(
                     }
                 )
                 Spacer(Modifier.width(4.dp))
-                Text("${cloudyProgress*1024}M/${1024}M",fontSize = 12.sp, color = MaterialTheme.colorScheme.primary)
+                Text("${mainViewModel.user.value.capacity_used}M/${mainViewModel.user.value.capacity}M",fontSize = 12.sp, color = MaterialTheme.colorScheme.primary)
                 Spacer(Modifier.width(4.dp))
                 Text("续费", color = MaterialTheme.colorScheme.primary,fontSize = 12.sp, modifier = Modifier.clickable {  })
             }
@@ -243,7 +243,7 @@ fun Avatar(
                     }
                 )
                 Spacer(Modifier.width(4.dp))
-                Text("${tokenProgress*1000}次/${1000}次", fontSize = 12.sp, color = MaterialTheme.colorScheme.primary)
+                Text("${mainViewModel.user.value.count_used}次/${mainViewModel.user.value.count}次", fontSize = 12.sp, color = MaterialTheme.colorScheme.primary)
                 Spacer(Modifier.width(4.dp))
                 Text("续费", color = MaterialTheme.colorScheme.primary, fontSize = 12.sp,modifier = Modifier.clickable {  })
             }

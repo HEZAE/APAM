@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hezae.apam.datas.ApiResult
+import com.hezae.apam.models.UserLogin
 import com.hezae.apam.tools.RetrofitInstance
 import kotlinx.coroutines.launch
 import java.security.MessageDigest
@@ -18,7 +19,7 @@ class  LoginViewModel: ViewModel() {
         var result: ApiResult<String>?  = null
         viewModelScope.launch {
             try {
-                val response = RetrofitInstance.api.login(username, password.toMD5())
+                val response = RetrofitInstance.api.login(UserLogin(username, password.toMD5()))
                 if (response.isSuccessful) {
                     if (response.body() != null) {
                         result = response.body()!!

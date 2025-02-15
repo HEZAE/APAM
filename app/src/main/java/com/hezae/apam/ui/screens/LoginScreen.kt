@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.widget.Toast
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -28,6 +30,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -66,7 +69,10 @@ fun LoginScreen(modifier: Modifier, loginViewModel: LoginViewModel, innerPadding
             model = "file:///android_asset/loginBg.png",
         )
 
+        //是否记住密码
         var rememberCheckedState by remember { mutableStateOf(true) }
+        //是否同意隐私条款
+        var privacyCheckedState by remember { mutableStateOf(true) }
 
         //蓝色背景
         Image(
@@ -83,6 +89,7 @@ fun LoginScreen(modifier: Modifier, loginViewModel: LoginViewModel, innerPadding
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Spacer(Modifier.fillMaxHeight(0.35f))
             Image(
                 painter = rememberAsyncImagePainter(
                     model = "file:///android_asset/title.png",
@@ -93,22 +100,23 @@ fun LoginScreen(modifier: Modifier, loginViewModel: LoginViewModel, innerPadding
                     .clip(RoundedCornerShape(10.dp)),
                 contentScale = ContentScale.Crop
             )
+            Spacer(Modifier.fillMaxHeight(0.05f))
             Card(
-                Modifier
-                    .weight(1f)
-                    .padding(start = 4.dp, end = 4.dp,  bottom = 15.dp, top = 15.dp),
+                Modifier.fillMaxWidth().weight(1f)
+                    .padding(start = 2.dp, end =2.dp),
                 elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
             ) {
                 Column(
-                    Modifier.padding(vertical = 10.dp, horizontal = 10.dp).weight(1f),
+                    Modifier.padding(vertical = 10.dp, horizontal = 15.dp).weight(1f),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Spacer(Modifier.height(10.dp))
                     OutlinedTextField(
                         prefix = {
                             Text(
-                                text = "用户名：",
-                                color = MaterialTheme.colorScheme.primary
+                                text = "用户名:",
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.width(62.dp)
                             )
                         },
                         value = username,
@@ -128,8 +136,9 @@ fun LoginScreen(modifier: Modifier, loginViewModel: LoginViewModel, innerPadding
                     OutlinedTextField(
                         prefix = {
                             Text(
-                                text = "密码：",
-                                color = MaterialTheme.colorScheme.primary
+                                text = "密码:",
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.width(62.dp)
                             )
                         },
                         value = password,
@@ -149,14 +158,16 @@ fun LoginScreen(modifier: Modifier, loginViewModel: LoginViewModel, innerPadding
                     )
                     Spacer(Modifier.height(10.dp))
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically){
-                        Checkbox(rememberCheckedState, onCheckedChange = {
-                            rememberCheckedState= it
-                        },colors = CheckboxDefaults.colors(
-                                checkedColor = MaterialTheme.colorScheme.primary,
-                            uncheckedColor = Color.LightGray
-                        ))
-                        Text("记住密码", color = MaterialTheme.colorScheme.primary)
+                        Row(Modifier.clickable { privacyCheckedState = !privacyCheckedState }, verticalAlignment = Alignment.CenterVertically){
+                            RadioButton(selected = privacyCheckedState,{})
+                            Text("阅读并同意《APAM用户协议》", color = MaterialTheme.colorScheme.primary)
+                        }
+                    }
+                    Spacer(Modifier.height(10.dp))
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically)
+                    {
                         Spacer(Modifier.width(10.dp))
+
                         TextButton(
                             enabled = !loginViewModel.isLoading.value,
                             onClick = {
@@ -207,13 +218,12 @@ fun LoginScreen(modifier: Modifier, loginViewModel: LoginViewModel, innerPadding
                         }
                     }
                 }
-                Row(Modifier.fillMaxWidth().padding(bottom = 4.dp), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically){
-                    Text(text = "其他登录方式", color = MaterialTheme.colorScheme.primary)
+                Row(Modifier.fillMaxWidth().padding(bottom = 10.dp), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically){
+                    TextButton({}) { Text(text = "其他登录方式", color = MaterialTheme.colorScheme.primary) }
                     Spacer(Modifier.width(10.dp))
-                    Text(text = "忘记密码", color = MaterialTheme.colorScheme.primary)
+                    TextButton({}) {Text(text = "忘记密码", color = MaterialTheme.colorScheme.primary) }
                     Spacer(Modifier.width(10.dp))
-                    Text(text = "更多", color = MaterialTheme.colorScheme.primary)
-
+                    TextButton({}) {Text(text = "更多", color = MaterialTheme.colorScheme.primary)}
                 }
             }
 
