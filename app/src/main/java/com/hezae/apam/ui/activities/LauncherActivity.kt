@@ -103,10 +103,17 @@ class LauncherActivity : ComponentActivity() {
     }
 
     private fun navigateToMain(context: Context) {
-        val intent = Intent(context, MainActivity::class.java)
-        context.startActivity(intent)
-        if (context is Activity) {
-            context.finish()
+        //从sharedPreferences中获取Token
+        val sharedPreferences = context.getSharedPreferences("user_info", Context.MODE_PRIVATE)
+        val token :String? = sharedPreferences.getString("token", null)
+        if (token != null) {
+            val intent = Intent(context, MainActivity::class.java)
+            context.startActivity(intent)
+            (context as Activity).finish()
+        } else {
+            val intent = Intent(context, LoginActivity::class.java)
+            context.startActivity(intent)
+            (context as Activity).finish()
         }
     }
 }

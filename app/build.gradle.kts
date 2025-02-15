@@ -67,6 +67,7 @@ dependencies {
     implementation(libs.material3)
     implementation(libs.google.accompanist.pager)
     implementation( libs.coil.compose)
+    implementation(libs.androidx.documentfile)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -85,4 +86,6 @@ dependencies {
     implementation (libs.converter.gson)
     implementation (libs.kotlinx.coroutines.android)
 
+    implementation(libs.androidx.activity.activity.ktx8)
+    implementation (libs.androidx.fragment.ktx)
 }

@@ -1,5 +1,7 @@
 package com.hezae.apam.ui.viewmodels
 
+import android.media.session.MediaSession.Token
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
@@ -7,29 +9,41 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.hezae.apam.datas.Post
+import com.hezae.apam.datas.ApiResult
+import com.hezae.apam.models.User
 import com.hezae.apam.tools.RetrofitInstance
 import kotlinx.coroutines.launch
 
 class MainViewModel: ViewModel() {
-    var counter by mutableIntStateOf(0)
-    var username by mutableStateOf("")
-    var password by mutableStateOf("")
-    var token by mutableStateOf("")
-    var isLoggedIn by mutableStateOf(false)
-    var isRememberPassword by mutableStateOf(false)
-    var isAutoLogin by mutableStateOf(false)
-
-    private val _posts = mutableStateListOf<Post>()
-    val posts: List<Post> get() = _posts
-    fun fetchPosts() {
+    var user  = mutableStateOf<User>( User("","","未知","",0,0.0f,0, ""))
+    var isLoadingUser = mutableStateOf(false)
+    fun getUser(token:String,onFinished : (ApiResult<String>) -> Unit){
+        isLoadingUser.value = true
         viewModelScope.launch {
             try {
-                val response = RetrofitInstance.api.getPosts()
-                _posts.addAll(response)
-            } catch (e: Exception) {
-                // 处理异常
+                val response = RetrofitInstance.api.getUserInfo("bearer $token")
+                if (response.isSuccessful){
+                    if(response.body() != null){
+                        val date = response.body()!!.data
+                        if(date != null){
+                            user.value  = date
+                            onFinished(ApiResult(true,200,"",user.value.username))
+                        }else{
+                            onFinished(ApiResult(false,response.code(),response.message(),""))
+                        }
+                    }else{
+                        onFinished(ApiResult(false,response.code(),response.message(),""))
+                    }
+                }else{
+                    onFinished(ApiResult(false,response.code(),response.message(),""))
+                }
+            }catch (e:Exception){
+                Log.e("MainViewModel",e.message.toString())
+                onFinished(ApiResult(false,500,e.message.toString(),""))
+            }finally {
+                isLoadingUser.value = false
             }
         }
     }
+
 }

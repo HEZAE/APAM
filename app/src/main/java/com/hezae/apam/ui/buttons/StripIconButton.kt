@@ -2,6 +2,7 @@ package com.hezae.apam.ui.buttons
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
@@ -45,16 +46,18 @@ fun StripIconButton(
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically // 或者 Alignment.Top/Bottom 等
+                verticalAlignment = Alignment.CenterVertically, // 或者 Alignment.Top/Bottom 等
+                horizontalArrangement = Arrangement.Start
             ) {
-                Image(
+                Icon(
                     imageVector = icon,
                     contentDescription = null,
-                    modifier = Modifier.size(35.dp)
+                    modifier = Modifier.size(25.dp),
                 )
                 Text(
                     text = text,
-                    modifier = Modifier.padding(start = 8.dp, top = 4.dp)
+                    modifier = Modifier.padding(start = 8.dp, top = 4.dp),
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
         }

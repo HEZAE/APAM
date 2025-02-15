@@ -19,18 +19,5 @@ fun SettingsScreen(
     selectedTheme: Style,
     onThemeChange: (Style) -> Unit
 ) {
-    Column(modifier = modifier.padding(4.dp)) {
-        ThemeSelector(selectedTheme = selectedTheme )
-        { newTheme ->
-            onThemeChange(newTheme) // 使用回调更新主题
-        }
-        StripIconButton(
-            modifier = Modifier,
-            text = "切换用户",
-            icon = Icons.Sharp.Build,
-            onClick = { }
-        ){}
 
-        IconText()
-    }
 }

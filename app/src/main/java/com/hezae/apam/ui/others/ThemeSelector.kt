@@ -19,6 +19,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
@@ -27,16 +28,16 @@ import com.hezae.apam.datas.Style
 import com.hezae.apam.ui.buttons.StripIconButton
 
 @Composable
-fun ThemeSelector(selectedTheme: Style, onThemeChange: (Style) -> Unit) {
+fun ThemeSelector(modifier: Modifier,selectedTheme: Style, icon: ImageVector = Icons.Sharp.Favorite, onThemeChange: (Style) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     val styles = listOf(Style.MICA, Style.DARK, Style.TWILIGHT)
 
     StripIconButton(
+        modifier = modifier,
         text = "${stringResource(R.string.select_theme)} ",
         onClick = { expanded = !expanded },
-        icon = Icons.Sharp.Favorite,
+        icon = icon,
     ) {}
-
     Box(modifier = Modifier.fillMaxWidth()) {
         DropdownMenu(
             expanded = expanded,

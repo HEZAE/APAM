@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.hezae.apam.R
 import com.hezae.apam.ui.buttons.StripButton
+import com.hezae.apam.ui.others.FilePickerScreen
 import com.hezae.apam.ui.viewmodels.MainViewModel
 import kotlinx.coroutines.delay
 
@@ -85,14 +86,6 @@ fun HomeScreen(
                 )
             }
         }
-
-        // 手动重新启动自动播放的按钮
-        Button(onClick = { isAutoPlay.value = false }) { // 使用 isAutoPlay.value
-            Text("关闭自动播放")
-        }
-
-        StripButton("选项1", {}) {}
-        StripButton("选项2", {}) {}
     }
 }
 
