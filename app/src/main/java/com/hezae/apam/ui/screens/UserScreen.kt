@@ -25,7 +25,7 @@ import com.hezae.apam.ui.activities.SettingsActivity
 import com.hezae.apam.ui.buttons.StripIconButton
 import com.hezae.apam.ui.others.Avatar
 import com.hezae.apam.ui.others.ThemeSelector
-import com.hezae.apam.ui.viewmodels.MainViewModel
+import com.hezae.apam.viewmodels.MainViewModel
 
 
 @Composable

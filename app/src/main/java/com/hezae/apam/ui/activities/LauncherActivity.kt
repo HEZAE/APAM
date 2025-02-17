@@ -31,6 +31,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.hezae.apam.R
 import com.hezae.apam.tools.ManagerTheme
+import com.hezae.apam.tools.UserInfo
 import com.hezae.apam.ui.buttons.SkipButton
 import com.hezae.apam.ui.Themes.APAMTheme
 import kotlinx.coroutines.delay
@@ -107,6 +108,7 @@ class LauncherActivity : ComponentActivity() {
         val sharedPreferences = context.getSharedPreferences("user_info", Context.MODE_PRIVATE)
         val token :String? = sharedPreferences.getString("token", null)
         if (token != null) {
+            UserInfo.userToken = token
             val intent = Intent(context, MainActivity::class.java)
             context.startActivity(intent)
             (context as Activity).finish()

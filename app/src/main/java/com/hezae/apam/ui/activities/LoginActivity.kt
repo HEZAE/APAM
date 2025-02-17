@@ -11,7 +11,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.hezae.apam.tools.ManagerTheme
 import com.hezae.apam.ui.Themes.APAMTheme
 import com.hezae.apam.ui.screens.LoginScreen
-import com.hezae.apam.ui.viewmodels.LoginViewModel
+import com.hezae.apam.viewmodels.LoginViewModel
 
 class LoginActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

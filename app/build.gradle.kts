@@ -88,4 +88,7 @@ dependencies {
 
     implementation(libs.androidx.activity.activity.ktx8)
     implementation (libs.androidx.fragment.ktx)
+
+    implementation(libs.kotlinx.datetime)
+
 }

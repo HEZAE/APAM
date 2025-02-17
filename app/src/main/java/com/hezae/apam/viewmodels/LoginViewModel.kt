@@ -1,4 +1,4 @@
-package com.hezae.apam.ui.viewmodels
+package com.hezae.apam.viewmodels
 
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf

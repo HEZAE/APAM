@@ -59,7 +59,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
-import com.hezae.apam.ui.viewmodels.MainViewModel
+import com.hezae.apam.viewmodels.MainViewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class)

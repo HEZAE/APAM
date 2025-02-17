@@ -53,8 +53,9 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import com.hezae.apam.R
+import com.hezae.apam.tools.UserInfo
 import com.hezae.apam.ui.activities.MainActivity
-import com.hezae.apam.ui.viewmodels.LoginViewModel
+import com.hezae.apam.viewmodels.LoginViewModel
 
 @Composable
 fun LoginScreen(modifier: Modifier, loginViewModel: LoginViewModel, innerPadding: PaddingValues) {
@@ -193,6 +194,7 @@ fun LoginScreen(modifier: Modifier, loginViewModel: LoginViewModel, innerPadding
                                            val editor = sharedPreferences.edit()
                                            editor.putString("token", result.data)
                                            editor.apply()
+                                           UserInfo.userToken = result.data!!
                                            //跳转到主界面
                                            val intent = Intent(context, MainActivity::class.java)
                                            context.startActivity(intent)

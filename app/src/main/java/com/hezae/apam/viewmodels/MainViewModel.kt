@@ -1,4 +1,4 @@
-package com.hezae.apam.ui.viewmodels
+package com.hezae.apam.viewmodels
 
 import android.media.session.MediaSession.Token
 import android.util.Log

@@ -26,7 +26,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.hezae.apam.R
 import com.hezae.apam.ui.buttons.StripButton
 import com.hezae.apam.ui.others.FilePickerScreen
-import com.hezae.apam.ui.viewmodels.MainViewModel
+import com.hezae.apam.viewmodels.MainViewModel
 import kotlinx.coroutines.delay
 
 @Composable
