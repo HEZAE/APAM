@@ -129,6 +129,7 @@ fun PictureScreen(innerPadding: PaddingValues, viewModel: PictureViewModel) {
                 } else {
                     Toast.makeText(context, "获取失败", Toast.LENGTH_SHORT).show()
                 }
+                selectedCount.intValue = 0
                 isRefreshing = false
             }
         }
@@ -196,6 +197,18 @@ fun PictureScreen(innerPadding: PaddingValues, viewModel: PictureViewModel) {
                         Text(text = "${pictures.size}项", fontSize = 12.sp)
                     }
                     Row(Modifier.weight(1f), horizontalArrangement = Arrangement.End) {
+                        IconButton(
+                            onClick = {
+                                getPicture()
+                            },
+                        ) {
+                            Icon(
+                                imageVector = ImageVector.Companion.vectorResource(id = R.drawable.ic_flash),
+                                contentDescription = "filter",
+                                Modifier.size(20.dp),
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
                         IconButton(
                             onClick = {
                                 // 点击事件
@@ -271,9 +284,7 @@ fun PictureScreen(innerPadding: PaddingValues, viewModel: PictureViewModel) {
             }
 
             Box(
-                Modifier
-                    .weight(1f)
-                    .padding(vertical = 1.dp, horizontal = 2.dp)) {
+                Modifier.weight(1f).padding(vertical = 1.dp, horizontal = 2.dp)) {
                 PullToRefreshBox(modifier = Modifier.fillMaxSize(),
                     isRefreshing = isRefreshing,
                     state = refreshState,
@@ -290,22 +301,20 @@ fun PictureScreen(innerPadding: PaddingValues, viewModel: PictureViewModel) {
                     }
                 ) {
                     Card(
-                        Modifier
-                            .fillMaxSize()
-                            .padding(bottom = 4.dp)
+                        Modifier.fillMaxSize().padding(bottom = 4.dp)
                     ) {
                         LazyVerticalGrid(
                             modifier = Modifier
                                 .weight(1f)
-                                .padding(top = 4.dp),
-                            columns = GridCells.Fixed(4),
+                                .padding(4.dp),
+                            columns = GridCells.Fixed(3),
                             verticalArrangement = Arrangement.Top
                         ) {
                             items(pictures) { item ->
                                 Box(
                                     Modifier
                                         .fillMaxWidth()
-                                        .padding(1.dp)) {
+                                        .padding(4.dp)) {
                                     PictureCard(
                                         item = item,
                                         viewModel = viewModel,
@@ -422,7 +431,6 @@ fun PictureScreen(innerPadding: PaddingValues, viewModel: PictureViewModel) {
                                 }
                                 TextButton(
                                     {
-
                                             isRefreshing = true
                                             coroutineScope.launch {
                                                 val pictureIds = mutableListOf<String>()
@@ -431,22 +439,15 @@ fun PictureScreen(innerPadding: PaddingValues, viewModel: PictureViewModel) {
                                                         pictureIds.add(item.id)
                                                     }
                                                 }
-                                                isDisplayOperation.value = false
-                                                for (item in pictures){
-                                                    item.isSelected.value = false
-                                                }
                                                 viewModel.deletePictures(UserInfo.userToken,pictureIds.toList()){
-                                                    if (it.success){
-                                                        for (id in pictureIds){
-                                                            pictures.removeIf { item ->
-                                                                item.id == id
-                                                            }
+                                                        if (it.success){
+                                                            Toast.makeText(context,"删除${pictureIds.size}个成功",Toast.LENGTH_SHORT).show()
+                                                        }else{
+                                                            Toast.makeText(context,"删除异常",Toast.LENGTH_SHORT).show()
                                                         }
-                                                        Toast.makeText(context,"删除${pictureIds.size}个成功",Toast.LENGTH_SHORT).show()
-                                                    }else{
-                                                        Toast.makeText(context,"删除异常",Toast.LENGTH_SHORT).show()
-                                                    }
-                                                    isRefreshing = false
+                                                        getPicture()
+                                                        isDisplayOperation.value = false
+                                                        isRefreshing = false
                                                 }
                                             }
 
@@ -516,7 +517,6 @@ fun PictureScreen(innerPadding: PaddingValues, viewModel: PictureViewModel) {
                 onDismissRequest = {
                     coroutineScope.launch {
                         isRefreshing = true
-                        delay(2000)
                         getPicture()
                     }
                 }

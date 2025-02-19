@@ -8,6 +8,7 @@ import java.time.LocalDateTime
 data class CreatePicture(
     val name: String,
     val description: String,
+    @SerializedName("updated_at")
     val updatedAt: LocalDateTime,  // 对应 Python 的 datetime
     val width: Float,              // 对应 Python 的 float
     val height: Float,             // 对应 Python 的 float
