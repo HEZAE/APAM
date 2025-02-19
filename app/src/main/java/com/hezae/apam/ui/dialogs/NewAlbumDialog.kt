@@ -36,10 +36,7 @@ import com.hezae.apam.models.shemas.CreateAlbum
 import com.hezae.apam.tools.UserInfo
 import com.hezae.apam.viewmodels.AlbumViewModel
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Instant
 import java.time.LocalDateTime
-import java.time.ZoneOffset
-import kotlin.math.log
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -51,7 +48,7 @@ fun NewAlbumDialog(
 ) {
     val context = LocalContext.current
     val createAlbum by remember { mutableStateOf(CreateAlbum("", "",LocalDateTime.now().toString())) }
-    Log.e("NewAlbumDialog", createAlbum.created_at)
+    Log.e("NewAlbumDialog", createAlbum.createdAt)
     //输入值
     var name by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
@@ -105,7 +102,7 @@ fun NewAlbumDialog(
                             if (name.isNotEmpty()){
                                 createAlbum.name = name
                                 createAlbum.description = description
-                                createAlbum.created_at = LocalDateTime.now().toString()
+                                createAlbum.createdAt = LocalDateTime.now().toString()
                             }
                             coroutineScope.launch {
                                viewModel.createPicture(UserInfo.userToken, createAlbum){

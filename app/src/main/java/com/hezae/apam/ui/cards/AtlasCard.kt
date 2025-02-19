@@ -59,7 +59,6 @@ fun AtlasCard(
 ) {
     //发起http获取封面图片
     var url by remember { mutableStateOf( "https://i.postimg.cc/KGSzTQsw-/app-icon.png?dl=${LocalDateTime.now()}") }
-
     LaunchedEffect(item.isInit.value) {
         if(!item.isInit.value){
             url = "https://i.postimg.cc/KGSzTQsw-/app-icon.png?dl=${LocalDateTime.now()}"
@@ -75,10 +74,7 @@ fun AtlasCard(
                     model = url,
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .aspectRatio(1f)
-                        .clip(RoundedCornerShape(8.dp))
+                    modifier = Modifier.fillMaxWidth().aspectRatio(1f).clip(RoundedCornerShape(8.dp))
                         .pointerInput(Unit) {
                             detectTapGestures(
                                 onLongPress = {

@@ -1,12 +1,13 @@
 package com.hezae.apam.models.shemas
 
-import kotlinx.datetime.Instant
+import com.google.gson.annotations.SerializedName
 
 
 class CreateAlbum (
     var name: String,
     var description: String,
-    var created_at: String
+    @SerializedName("created_at")
+    var createdAt: String
 )
 
 class Album (

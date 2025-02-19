@@ -3,7 +3,6 @@ package com.hezae.apam.ui.dialogs
 import android.content.Context
 import android.graphics.BitmapFactory
 import android.net.Uri
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -49,13 +48,12 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.hezae.apam.tools.UserInfo
 import com.hezae.apam.viewmodels.PictureViewModel
 import kotlinx.coroutines.launch
 import java.io.File
-import java.io.FileInputStream
 import java.io.FileOutputStream
-import java.io.IOException
 import java.io.InputStream
 import java.util.UUID
 
@@ -81,7 +79,6 @@ fun NewPictureDialog(
 
     var name by remember { mutableStateOf(UUID.randomUUID().toString().slice(0..4)) }
     val tags = remember { mutableStateListOf<String>() }
-    var description by remember { mutableStateOf("") }
     var newTag by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
@@ -89,7 +86,6 @@ fun NewPictureDialog(
     BasicAlertDialog(
         onDismissRequest = {
             isDisplay.value = false
-            onDismissRequest()
         },
     ) {
         Card(
@@ -142,7 +138,10 @@ fun NewPictureDialog(
                                             color = MaterialTheme.colorScheme.primary,
                                             modifier = Modifier.clickable {
                                                 tags.removeAt(index)
-                                            })
+                                            },
+                                            fontSize = 12.sp,
+                                            fontWeight = FontWeight.Bold
+                                        )
                                     }
                                 }
                             }
@@ -219,30 +218,29 @@ fun NewPictureDialog(
                         }
                         TextButton({
                             isLoading = true
-                            if (name.isNotEmpty()) {
-                                //将标签列表转换为字符串
-                                description = tags.joinToString(",")
-                            }
-
                             coroutineScope.launch {
                                 //生成照片的UUID
                                 val pictureId = UUID.randomUUID().toString()
-                                var presignedUrl: String = ""
-                                    viewModel.getPresignedUrl(UserInfo.userToken, pictureId) {
+                                var presignedUrl = ""
+                                    val mapTags = mutableMapOf<String,String>()
+                                    for (i in 0 until tags.size) {
+                                        mapTags["tag$i"] = tags[i]
+                                    }
+                                val file = uriToFile(context, imageUri)
+                                viewModel.getPresignedUrl(UserInfo.userToken, pictureId,name,file.second.toFloat(),file.third.toFloat(),mapTags,0) {
                                         if (it.success) {
                                             presignedUrl = it.data!!
                                         } else {
-                                            Toast.makeText(context, it.msg, Toast.LENGTH_SHORT)
-                                                .show()
+                                            Toast.makeText(context, it.msg, Toast.LENGTH_SHORT) .show()
                                         }
                                         viewModel.uploadFile(
                                             presignedUrl,
-                                            name,
-                                            uriToFile(context, imageUri)
+                                            file.first,
                                         ) {
                                             result->
                                                 if (result.success){
                                                     Toast.makeText(context, "上传成功", Toast.LENGTH_SHORT).show()
+                                                    onDismissRequest()
                                                 }else{
                                                     Toast.makeText(context, it.msg, Toast.LENGTH_SHORT).show()
                                                 }
@@ -275,7 +273,7 @@ fun NewPictureDialog(
 
 }
 
-fun uriToFile(context: Context, uri: Uri): File {
+fun uriToFile(context: Context, uri: Uri):Triple< File, Int, Int>{
     // 创建临时文件存储
     val tempFile = File(context.cacheDir, "temp_file_${System.currentTimeMillis()}.jpg")
     tempFile.createNewFile()
@@ -289,5 +287,13 @@ fun uriToFile(context: Context, uri: Uri): File {
             input.copyTo(output)
         }
     }
-    return tempFile
+
+    // 获取图片尺寸
+    val options = BitmapFactory.Options().apply {
+        inJustDecodeBounds = true // 只解码边界信息，不加载图片到内存
+    }
+    BitmapFactory.decodeFile(tempFile.absolutePath, options)
+    val width = options.outWidth
+    val height = options.outHeight
+    return Triple(tempFile, width, height)
 }

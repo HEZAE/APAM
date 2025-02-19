@@ -75,51 +75,18 @@ import kotlin.math.ceil
 fun PictureScreen(modifier: Modifier = Modifier, viewModel: AlbumViewModel) {
     val context = LocalContext.current
     var searchText by remember { mutableStateOf(TextFieldValue("")) }
-    //计算屏幕的1/4 的宽度
     val screenWidthPx = context.resources.displayMetrics.widthPixels
     val density = context.resources.displayMetrics.density
-    val screenWidth = (screenWidthPx / density / 4)
-    //是否显示删除对话框
-    val isDisplayDeleteDialog = remember {
-        mutableStateOf(false)
-    }
-    //更多功能的下拉菜单
-    var moreMenu by remember { mutableStateOf(false) }
-
-    //显示选择
-    val isDisplaySelection = remember { mutableStateOf(false) }
-
-    //二维数组
-    val atlasLists = remember {
-        mutableStateListOf(
-            AtlasLists(
-                atlasList = mutableListOf(),
-                tag = "2025年01月",
-                isAllSelect = mutableStateOf(false)
-            ),
-            AtlasLists(
-                atlasList = mutableListOf(),
-                tag = "2025年02月",
-                isAllSelect = mutableStateOf(false)
-            )
-        )
-    }
-
-    //是否打开相册添加对话框
-    val isDisplayAddAtlasDialog = remember { mutableStateOf(false) }
-
-    //记录选中的列表的数量
-    val selectedCount = remember { mutableIntStateOf(0) }
-
-    val  refreshState = rememberPullToRefreshState()
-
-    var isRefreshing by remember {
-        mutableStateOf(false)
-    }
-
-    //协程
-    val coroutineScope  = rememberCoroutineScope()
-
+    val screenWidth = (screenWidthPx / density / 4)//计算屏幕的1/4 的宽度
+    val isDisplayDeleteDialog = remember { mutableStateOf(false)} //是否显示删除对话框
+    var moreMenu by remember { mutableStateOf(false) }    //更多功能的下拉菜单
+    val isDisplaySelection = remember { mutableStateOf(false) }    //显示选择
+    val atlasLists = remember {mutableStateListOf<AtlasLists>()}    //二维数组
+    val isDisplayAddAtlasDialog = remember { mutableStateOf(false) }    //是否打开相册添加对话框
+    val selectedCount = remember { mutableIntStateOf(0) }    //记录选中的列表的数量
+    val  refreshState = rememberPullToRefreshState() //刷新指示器状态
+    var isRefreshing by remember { mutableStateOf(false)} //是否在刷新
+    val coroutineScope  = rememberCoroutineScope()    //协程
     fun getAlbums() {
         viewModel.getAlbums(
             token = UserInfo.userToken
@@ -177,32 +144,22 @@ fun PictureScreen(modifier: Modifier = Modifier, viewModel: AlbumViewModel) {
             }
             isRefreshing = false
         }
-    }
-
+    }//获取相册函数
     LaunchedEffect(Unit) {
         isRefreshing = true
         coroutineScope.launch {
              getAlbums()
         }
-    }
-
-    Card(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(5.dp),
+    } //重构运行的函数
+    Card(modifier = modifier.fillMaxSize().padding(5.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.onPrimary
-        ),
-    ) {
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onPrimary))
+    {
         Column(modifier = Modifier.fillMaxSize()) {
             //顶部
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 5.dp, vertical = 2.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+            Row(modifier = Modifier .fillMaxWidth().padding(horizontal = 5.dp, vertical = 2.dp),
+                verticalAlignment = Alignment.CenterVertically)
+            {
                 if (isDisplaySelection.value) {
                     TextButton(
                         onClick = {
@@ -216,85 +173,44 @@ fun PictureScreen(modifier: Modifier = Modifier, viewModel: AlbumViewModel) {
                                 }
                             }
                         },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.Transparent,
-                            contentColor = Color.Transparent
-                        )
-                    ) {
-                        Text(
-                            text = "取消",
-                            fontSize = 19.sp,
-                            fontWeight = FontWeight.Normal,
-                            color = MaterialTheme.colorScheme.primary
-                        )
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent,contentColor = Color.Transparent))
+                    {
+                        Text(text = "取消",fontSize = 19.sp,fontWeight = FontWeight.Normal,color = MaterialTheme.colorScheme.primary)
                         Spacer(modifier = Modifier.width(5.dp))
-                        Text(
-                            text = "(${selectedCount.intValue})",
-                            fontSize = 19.sp,
-                            fontWeight = FontWeight.Normal,
-                            color = MaterialTheme.colorScheme.primary
-                        )
+                        Text(text = "(${selectedCount.intValue})",fontSize = 19.sp,fontWeight = FontWeight.Normal,color = MaterialTheme.colorScheme.primary)
                     }
-                } else {
-                    Row(
-                        modifier = Modifier
+                } //多选时的状态
+                else {
+                    Row( modifier = Modifier
                             .weight(1f)
-                            .padding(end = 5.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        BasicTextField(
-                            value = searchText,
-                            onValueChange = { searchText = it },
-                            textStyle = TextStyle(
-                                fontSize = 19.sp,
-                                fontWeight = FontWeight.Normal,
-                                color = MaterialTheme.colorScheme.surface,
-                            ),
-                            singleLine = true,
-                        ) { innerTextField ->
-                            Card(
-                                modifier = Modifier.padding(0.dp),
-                                colors = CardDefaults.cardColors(
-                                    containerColor = MaterialTheme.colorScheme.onSurface,
-                                    contentColor = MaterialTheme.colorScheme.surface
-                                ),
-                                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
-                            ) {
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(IntrinsicSize.Min)
-                                        .padding(start = 5.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Search,
-                                        contentDescription = "Camera",
-                                        modifier = Modifier
-                                            .padding(start = 5.dp)
-                                            .size(20.dp),
-                                        tint = MaterialTheme.colorScheme.primary
-                                    )
-                                    Box(
-                                        modifier = Modifier
-                                            .padding(horizontal = 5.dp, vertical = 6.dp)
-                                            .weight(1f)
-                                            .fillMaxHeight()
-                                    ) {
-                                        if (searchText.text.isEmpty()) {
-                                            Text(text = "搜索内容")
-                                        }
+                            .padding(end = 5.dp),verticalAlignment = Alignment.CenterVertically)
+                    {
+                        BasicTextField(value = searchText, onValueChange = { searchText = it },
+                            textStyle = TextStyle(fontSize = 19.sp,fontWeight = FontWeight.Normal, color = MaterialTheme.colorScheme.surface,),
+                            singleLine = true,)
+                        { innerTextField ->
+                            Card(modifier = Modifier.padding(0.dp),
+                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onSurface,contentColor = MaterialTheme.colorScheme.surface),
+                                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp))
+                            {
+                                Row(modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min).padding(start = 5.dp),
+                                    verticalAlignment = Alignment.CenterVertically)
+                                {
+                                    Icon(imageVector = Icons.Default.Search,contentDescription = "Camera",
+                                        modifier = Modifier.padding(start = 5.dp).size(20.dp),
+                                        tint = MaterialTheme.colorScheme.primary)
+                                    Box(modifier = Modifier.padding(horizontal = 5.dp, vertical = 6.dp).weight(1f).fillMaxHeight())
+                                    {
+                                        if (searchText.text.isEmpty()) {Text(text = "搜索内容")}
                                         innerTextField()
                                     }
                                 }
                             }
                         }
                     }
-                    IconButton(
-                        onClick = {
-                            // 点击事件
-                        },
-                    ) {
+                    IconButton(onClick = {
+                        },)
+                    {
                         Icon(
                             imageVector = ImageVector.Companion.vectorResource(id = R.drawable.ic_filter),
                             contentDescription = "filter",
@@ -302,11 +218,10 @@ fun PictureScreen(modifier: Modifier = Modifier, viewModel: AlbumViewModel) {
                             tint = MaterialTheme.colorScheme.primary
                         )
                     }
-                    IconButton(
-                        onClick = {
+                    IconButton(onClick = {
                             // 点击事件
-                        },
-                    ) {
+                        },)
+                    {
                         Icon(
                             imageVector = ImageVector.Companion.vectorResource(id = R.drawable.ic_tack),
                             contentDescription = "filter",
@@ -314,67 +229,29 @@ fun PictureScreen(modifier: Modifier = Modifier, viewModel: AlbumViewModel) {
                             tint = MaterialTheme.colorScheme.primary
                         )
                     }
-                    IconButton(
-                        onClick = {
-                            isDisplayAddAtlasDialog.value = true
-                        },
-                    ) {
-                        Icon(
-                            imageVector = ImageVector.Companion.vectorResource(id = R.drawable.ic_add),
-                            contentDescription = "filter",
-                            Modifier.size(17.dp),
-                            tint = MaterialTheme.colorScheme.primary
-                        )
+                    IconButton(onClick = {isDisplayAddAtlasDialog.value = true},)
+                    {
+                        Icon(imageVector = ImageVector.Companion.vectorResource(id = R.drawable.ic_add),contentDescription = "filter",
+                            Modifier.size(17.dp),tint = MaterialTheme.colorScheme.primary)
                     }
-                    IconButton(
-                        onClick = {
-                            // 点击事件
-                            moreMenu = !moreMenu
-                        },
-                    ) {
-                        Icon(
-                            imageVector = ImageVector.Companion.vectorResource(id = R.drawable.ic_more),
-                            contentDescription = "filter",
-                            Modifier.size(20.dp),
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                        if (moreMenu) {
-                            DropdownMenu(
-                                expanded = moreMenu,
-                                onDismissRequest = { moreMenu = false },
-                                modifier = Modifier
-                                    .width(150.dp)
-                                    .height(IntrinsicSize.Min)
-                            ) {
-                                DropdownMenuItem(
-                                    text = { Text(text = "选择") },
-                                    onClick = {
-                                        isDisplaySelection.value = true
-                                        moreMenu = false
-                                    }
-                                )
-
-                                DropdownMenuItem(
-                                    text = { Text(text = "从相册中选择上传") },
-                                    onClick = {
-                                    }
-                                )
-                            }
+                    IconButton(onClick = {moreMenu = !moreMenu},)
+                    {
+                        Icon(imageVector = ImageVector.Companion.vectorResource(id = R.drawable.ic_more),
+                            contentDescription = "filter",Modifier.size(20.dp),
+                            tint = MaterialTheme.colorScheme.primary )
+                        DropdownMenu( expanded = moreMenu, onDismissRequest = { moreMenu = false },
+                            modifier = Modifier.width(150.dp).height(IntrinsicSize.Min))
+                        {
+                            DropdownMenuItem(text = { Text(text = "选择") },onClick = {isDisplaySelection.value = true
+                                moreMenu = false})
                         }
                     }
-                }
+                } //顶部按钮
             }
 
-            PullToRefreshBox(
-                modifier = modifier.weight(1f),
-                isRefreshing =  isRefreshing,
-                state = refreshState,
-                onRefresh = {
-                    isRefreshing = true
-                    coroutineScope.launch {
-                        getAlbums()
-                    }
-                },
+            PullToRefreshBox(modifier = modifier.weight(1f),isRefreshing =  isRefreshing,
+                state = refreshState,onRefresh = {isRefreshing = true
+                    coroutineScope.launch {getAlbums()}},
                 indicator= {
                         Indicator(
                             modifier = Modifier.align(Alignment.TopCenter),
@@ -384,40 +261,22 @@ fun PictureScreen(modifier: Modifier = Modifier, viewModel: AlbumViewModel) {
                             containerColor = MaterialTheme.colorScheme.primary,
                             threshold = 60.dp
                         )
-                },
-            ){
-                // 内容部分
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize()
-                        .padding(horizontal = 5.dp)
-                ) {
+                },)
+            {
+                LazyColumn(modifier = Modifier.fillMaxSize() .padding(horizontal = 5.dp))
+                {
                     for (atlasList in atlasLists) {
                         item {
                             Column {
-                                //是否显示全选开关
                                 if(atlasList.atlasList.size>0){
-                                    Row(
-                                        modifier = Modifier.padding(vertical = 5.dp),
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Spacer(Modifier.width(6.dp))
-                                        Text(
-                                            text = atlasList.tag,
-                                            fontSize = 15.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            modifier = Modifier.padding(end = 5.dp)
-                                        )
-                                        Row(
-                                            modifier = Modifier.weight(1f),
-                                            horizontalArrangement = Arrangement.End,
-                                        ) {
+                                    Row(modifier = Modifier.padding(vertical = 5.dp),verticalAlignment = Alignment.CenterVertically)
+                                    {
+                                        Text(text = atlasList.tag,fontSize = 15.sp, fontWeight = FontWeight.Bold,modifier = Modifier.padding(start = 5.dp, end = 5.dp))//标签
+                                        Row(modifier = Modifier.weight(1f),horizontalArrangement = Arrangement.End, )
+                                        {
                                             if (isDisplaySelection.value) {
-                                                Checkbox(
-                                                    colors = CheckboxDefaults.colors(
-                                                        checkedColor = MaterialTheme.colorScheme.primary,
-                                                        uncheckedColor = Color.LightGray
-                                                    ),
-                                                    checked = atlasList.isAllSelect.value,
+                                                Checkbox(colors = CheckboxDefaults.colors( checkedColor = MaterialTheme.colorScheme.primary,
+                                                    uncheckedColor = Color.LightGray),checked = atlasList.isAllSelect.value,
                                                     onCheckedChange = {
                                                         if (it) {
                                                             for (item in atlasList.atlasList) {
@@ -437,26 +296,18 @@ fun PictureScreen(modifier: Modifier = Modifier, viewModel: AlbumViewModel) {
                                                             atlasList.isAllSelect.value = false
                                                         }
                                                     },
-                                                    modifier = Modifier
-                                                        .padding(end = 5.dp)
-                                                        .size(20.dp)
+                                                    modifier = Modifier.padding(end = 5.dp) .size(20.dp)
                                                 )
                                             }
-                                        }
+                                        }//显示选择按钮
                                     }
                                 }
                                 LazyVerticalGrid(
                                     columns = GridCells.Fixed(4),
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height((ceil(atlasList.atlasList.size / 4f) * screenWidth * 1.55).dp)
+                                    modifier = Modifier.fillMaxWidth().height((ceil(atlasList.atlasList.size / 4f) * screenWidth * 1.55).dp)
                                 ) {
                                     items(atlasList.atlasList.size) { index ->
-                                        AtlasCard(
-                                            modifier = Modifier
-                                                .padding(2.dp)
-                                                .width(screenWidth.dp)
-                                                .height((screenWidth * 1.5).dp),
+                                        AtlasCard( modifier = Modifier.padding(2.dp).width(screenWidth.dp).height((screenWidth * 1.5).dp),
                                             item = atlasList.atlasList[index],
                                             isDisplaySelection = isDisplaySelection,
                                             selectCount = selectedCount
@@ -475,14 +326,11 @@ fun PictureScreen(modifier: Modifier = Modifier, viewModel: AlbumViewModel) {
                             }
                         }
                     }
-                }
+                }// 内容部分
             }
             if (isDisplaySelection.value) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 5.dp)
-                ) {
+                Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 5.dp))
+                {
                     IconButton(
                         onClick = {
                             if (selectedCount.intValue > 0) {
@@ -493,12 +341,8 @@ fun PictureScreen(modifier: Modifier = Modifier, viewModel: AlbumViewModel) {
                             }
                         },
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.Delete,
-                            contentDescription = "删除",
-                            modifier = Modifier.size(20.dp),
-                            tint = Color.Red.copy(alpha = 0.8f)
-                        )
+                        Icon( imageVector = Icons.Default.Delete,contentDescription = "删除",
+                            modifier = Modifier.size(20.dp),tint = Color.Red.copy(alpha = 0.8f))
                     }
                     Spacer(Modifier.width(5.dp))
                     IconButton(
@@ -527,11 +371,9 @@ fun PictureScreen(modifier: Modifier = Modifier, viewModel: AlbumViewModel) {
                         )
                     }
                 }
-            }
+            }//显示选择时的框
         }
     }
-
-    //删除对话框
     if (isDisplayDeleteDialog.value) {
         AlertDialog(
             containerColor = MaterialTheme.colorScheme.primary,
@@ -563,11 +405,10 @@ fun PictureScreen(modifier: Modifier = Modifier, viewModel: AlbumViewModel) {
                 }
             }
         )
-    }
-
+    }//删除对话框
     if(isDisplayAddAtlasDialog.value){
         NewAlbumDialog(isDisplay = isDisplayAddAtlasDialog, viewModel = viewModel,){
             isDisplayAddAtlasDialog.value = false
         }
-    }
+    }//新建相册对话框
 }

@@ -15,11 +15,11 @@ import retrofit2.http.Query
 
 interface PictureApi {
     //创建相片
-    @POST("picture/create")
-    suspend fun createPicture(
-        @Header("Authorization") token: String,
-        @Body picture: CreatePicture
-    ): Response<ApiResult<String>>
+//    @POST("picture/create")
+//    suspend fun createPicture(
+//        @Header("Authorization") token: String,
+//        @Body picture: CreatePicture
+//    ): Response<ApiResult<String>>
 
     //根据相片ID获取相片信息
     @GET("picture/{picture_id}")
