@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
@@ -14,6 +15,7 @@ import com.hezae.apam.ui.screens.PictureScreen
 import com.hezae.apam.viewmodels.PictureViewModel
 
 class PictureActivity : ComponentActivity() {
+    @RequiresApi(35)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -23,7 +25,6 @@ class PictureActivity : ComponentActivity() {
             viewModel.album.value.id = intent.getStringExtra("id") ?: ""
             viewModel.album.value.name = intent.getStringExtra("name") ?: ""
             viewModel.album.value.count = intent.getIntExtra("count", 0)
-            viewModel.album.value.cover_picture_id = intent.getStringExtra("cover_picture_id") ?: ""
 
             APAMTheme(ManagerTheme.currentTheme){
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->

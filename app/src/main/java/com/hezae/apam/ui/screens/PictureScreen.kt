@@ -66,9 +66,7 @@ import com.hezae.apam.ui.activities.PictureActivity
 import com.hezae.apam.ui.cards.PictureCard
 import com.hezae.apam.ui.dialogs.NewPictureDialog
 import com.hezae.apam.viewmodels.PictureViewModel
-import kotlinx.coroutines.Delay
 import kotlinx.coroutines.InternalCoroutinesApi
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
 import java.io.IOException
@@ -107,27 +105,28 @@ fun PictureScreen(innerPadding: PaddingValues, viewModel: PictureViewModel) {
         coroutineScope.launch {
             viewModel.getPicturesByAlbum(UserInfo.userToken) {
                 if (it.success) {
-                    Toast.makeText(context, "获取成功", Toast.LENGTH_SHORT).show()
-                    for (item in it.data!!) {
-                        pictures.add(
-                            PictureItem(
-                                id = item.id,
-                                userId = item.userId,
-                                albumId = item.albumId,
-                                name = item.name,
-                                description = item.description,
-                                createdAt = item.createdAt,
-                                width = item.width,
-                                height = item.height,
-                                level = item.level,
-                                isInit = false,
-                                isLoading = false,
-                                isError = false,
+                    if (it.data != null) {
+                        for (item in it.data) {
+                            pictures.add(
+                                PictureItem(
+                                    id = item.id,
+                                    userId = item.userId,
+                                    albumId = item.albumId,
+                                    name = item.name,
+                                    description = item.description,
+                                    createdAt = item.createdAt,
+                                    width = item.width,
+                                    height = item.height,
+                                    level = item.level,
+                                    isInit = false,
+                                    isLoading = false,
+                                    isError = false,
+                                )
                             )
-                        )
+                        }
                     }
                 } else {
-                    Toast.makeText(context, "获取失败", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "获取失败：" + it.msg, Toast.LENGTH_SHORT).show()
                 }
                 selectedCount.intValue = 0
                 isRefreshing = false
@@ -284,7 +283,10 @@ fun PictureScreen(innerPadding: PaddingValues, viewModel: PictureViewModel) {
             }
 
             Box(
-                Modifier.weight(1f).padding(vertical = 1.dp, horizontal = 2.dp)) {
+                Modifier
+                    .weight(1f)
+                    .padding(vertical = 1.dp, horizontal = 2.dp)
+            ) {
                 PullToRefreshBox(modifier = Modifier.fillMaxSize(),
                     isRefreshing = isRefreshing,
                     state = refreshState,
@@ -301,7 +303,9 @@ fun PictureScreen(innerPadding: PaddingValues, viewModel: PictureViewModel) {
                     }
                 ) {
                     Card(
-                        Modifier.fillMaxSize().padding(bottom = 4.dp)
+                        Modifier
+                            .fillMaxSize()
+                            .padding(bottom = 4.dp)
                     ) {
                         LazyVerticalGrid(
                             modifier = Modifier
@@ -314,7 +318,8 @@ fun PictureScreen(innerPadding: PaddingValues, viewModel: PictureViewModel) {
                                 Box(
                                     Modifier
                                         .fillMaxWidth()
-                                        .padding(4.dp)) {
+                                        .padding(4.dp)
+                                ) {
                                     PictureCard(
                                         item = item,
                                         viewModel = viewModel,
@@ -431,25 +436,36 @@ fun PictureScreen(innerPadding: PaddingValues, viewModel: PictureViewModel) {
                                 }
                                 TextButton(
                                     {
-                                            isRefreshing = true
-                                            coroutineScope.launch {
-                                                val pictureIds = mutableListOf<String>()
-                                                for (item in pictures){
-                                                    if (item.isSelected.value){
-                                                        pictureIds.add(item.id)
-                                                    }
-                                                }
-                                                viewModel.deletePictures(UserInfo.userToken,pictureIds.toList()){
-                                                        if (it.success){
-                                                            Toast.makeText(context,"删除${pictureIds.size}个成功",Toast.LENGTH_SHORT).show()
-                                                        }else{
-                                                            Toast.makeText(context,"删除异常",Toast.LENGTH_SHORT).show()
-                                                        }
-                                                        getPicture()
-                                                        isDisplayOperation.value = false
-                                                        isRefreshing = false
+                                        isRefreshing = true
+                                        coroutineScope.launch {
+                                            val pictureIds = mutableListOf<String>()
+                                            for (item in pictures) {
+                                                if (item.isSelected.value) {
+                                                    pictureIds.add(item.id)
                                                 }
                                             }
+                                            viewModel.deletePictures(
+                                                UserInfo.userToken,
+                                                pictureIds.toList()
+                                            ) {
+                                                if (it.success) {
+                                                    Toast.makeText(
+                                                        context,
+                                                        "删除${pictureIds.size}个成功",
+                                                        Toast.LENGTH_SHORT
+                                                    ).show()
+                                                } else {
+                                                    Toast.makeText(
+                                                        context,
+                                                        "删除异常",
+                                                        Toast.LENGTH_SHORT
+                                                    ).show()
+                                                }
+                                                getPicture()
+                                                isDisplayOperation.value = false
+                                                isRefreshing = false
+                                            }
+                                        }
 
                                     }
                                 ) {
@@ -497,14 +513,13 @@ fun PictureScreen(innerPadding: PaddingValues, viewModel: PictureViewModel) {
                             Modifier.fillMaxSize(),
                             selectedItem.value!!,
                             viewModel
-                        )
+                        ) {
+                            isSelected.value = false
+                            getPicture()
+                        }
                     }
                 }
             }
-        }
-
-        if(isRefreshing){
-            Box(Modifier.fillMaxSize())
         }
 
         //上传对话框
@@ -515,10 +530,7 @@ fun PictureScreen(innerPadding: PaddingValues, viewModel: PictureViewModel) {
                 imageData = imageData!!,
                 viewModel = viewModel,
                 onDismissRequest = {
-                    coroutineScope.launch {
-                        isRefreshing = true
-                        getPicture()
-                    }
+                   getPicture()
                 }
             )
         }

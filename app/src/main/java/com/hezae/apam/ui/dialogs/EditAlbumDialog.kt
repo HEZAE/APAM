@@ -34,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.hezae.apam.models.AtlasItem
 import com.hezae.apam.models.shemas.CreateAlbum
 import com.hezae.apam.tools.UserInfo
 import com.hezae.apam.viewmodels.AlbumViewModel
@@ -43,16 +44,19 @@ import java.time.LocalDateTime
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NewAlbumDialog(
+fun EditAlbumDialog(
     isDisplay: MutableState<Boolean>,
+    item: AtlasItem,
     viewModel: AlbumViewModel,
     onDismissRequest: () -> Unit,
 ) {
     val context = LocalContext.current
-    val createAlbum by remember { mutableStateOf(CreateAlbum("", "",false,LocalDateTime.now().toString())) }
-    Log.e("NewAlbumDialog", createAlbum.createdAt)
+    val createAlbum by remember { mutableStateOf(
+        CreateAlbum("", "",false,
+            LocalDateTime.now().toString())
+    ) }
     //输入值
-    var name by remember { mutableStateOf("") }
+    var name by remember { mutableStateOf(item.title) }
     var description by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false)}
     var isPublic by remember { mutableStateOf(false)}
@@ -68,7 +72,7 @@ fun NewAlbumDialog(
             Box(Modifier.fillMaxWidth().height(IntrinsicSize.Max)){
                 Column(Modifier.padding(8.dp)) {
                     Row(Modifier.fillMaxWidth().padding(4.dp)){
-                        Text("新建相册",color = MaterialTheme.colorScheme.primary)
+                        Text("更新相册",color = MaterialTheme.colorScheme.primary)
                     }
                     Card(Modifier.padding(20.dp)) {
                         OutlinedTextField(
@@ -123,8 +127,8 @@ fun NewAlbumDialog(
                                 createAlbum.public = isPublic
                             }
                             coroutineScope.launch {
-                               viewModel.createPicture(UserInfo.userToken, createAlbum){
-                                   if (it.success){
+                                viewModel.createPicture(UserInfo.userToken, createAlbum){
+                                    if (it.success){
                                         Toast.makeText(context, "相册创建成功", Toast.LENGTH_SHORT).show()
                                     }else{
                                         Toast.makeText(context, "相册创建失败", Toast.LENGTH_SHORT).show()
@@ -138,7 +142,6 @@ fun NewAlbumDialog(
                         }
                     }
                 }
-
                 //进度条
                 if (isLoading) {
                     Box(Modifier.matchParentSize().background(color = Color.Gray.copy(alpha = 0.5f))){

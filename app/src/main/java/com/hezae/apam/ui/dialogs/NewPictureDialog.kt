@@ -49,12 +49,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.hezae.apam.models.shemas.CreatePicture
 import com.hezae.apam.tools.UserInfo
 import com.hezae.apam.viewmodels.PictureViewModel
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
+import java.time.LocalDateTime
 import java.util.UUID
 
 
@@ -91,18 +93,21 @@ fun NewPictureDialog(
         Card(
             Modifier
                 .fillMaxWidth()
-                .fillMaxHeight(0.85f)) {
+                .fillMaxHeight(0.85f)
+        ) {
             Box(Modifier.fillMaxSize()) {
                 Column(
                     Modifier
                         .fillMaxSize()
                         .padding(8.dp)
-                        .verticalScroll(rememberScrollState())) {
+                        .verticalScroll(rememberScrollState())
+                ) {
                     Row(
                         Modifier
                             .fillMaxWidth()
                             .fillMaxSize()
-                            .padding(4.dp)) {
+                            .padding(4.dp)
+                    ) {
                         Text(
                             "上传本地图片",
                             color = MaterialTheme.colorScheme.primary,
@@ -112,7 +117,8 @@ fun NewPictureDialog(
                     Card(
                         Modifier
                             .weight(1f)
-                            .padding(20.dp)) {
+                            .padding(20.dp))
+                    {
                         OutlinedTextField(
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedTextColor = MaterialTheme.colorScheme.primary,
@@ -210,7 +216,8 @@ fun NewPictureDialog(
                     Row(
                         Modifier
                             .fillMaxWidth()
-                            .padding(4.dp)) {
+                            .padding(4.dp)
+                    ) {
                         TextButton({
                             isDisplay.value = false
                         }, enabled = !isLoading) {
@@ -222,33 +229,55 @@ fun NewPictureDialog(
                                 //生成照片的UUID
                                 val pictureId = UUID.randomUUID().toString()
                                 var presignedUrl = ""
-                                    val mapTags = mutableMapOf<String,String>()
-                                    for (i in 0 until tags.size) {
-                                        mapTags["tag$i"] = tags[i]
-                                    }
                                 val file = uriToFile(context, imageUri)
-                                viewModel.getPresignedUrl(UserInfo.userToken, pictureId,name,file.second.toFloat(),file.third.toFloat(),mapTags,0) {
-                                        if (it.success) {
-                                            presignedUrl = it.data!!
-                                        } else {
-                                            Toast.makeText(context, it.msg, Toast.LENGTH_SHORT) .show()
-                                        }
-                                        viewModel.uploadFile(
-                                            presignedUrl,
-                                            file.first,
+                                viewModel.getPresignedUrl(
+                                    UserInfo.userToken,
+                                    pictureId,
+                                    name,
+                                    file.second.toFloat(),
+                                    file.third.toFloat(),
+                                    tags.toList().toString(),
+                                    0
+                                ) {
+                                    if (it.success) {
+                                        presignedUrl = it.data!!
+                                        viewModel.createPicture(
+                                            UserInfo.userToken, CreatePicture(
+                                                id = pictureId,
+                                                name = name,
+                                                description = tags.toList().toString(),
+                                                createdAt = LocalDateTime.now().toString(),
+                                                width = file.second.toFloat(),
+                                                height = file.third.toFloat(),
+                                                level = 0,
+                                                albumId = viewModel.album.value.id
+                                            )
                                         ) {
-                                            result->
-                                                if (result.success){
-                                                    Toast.makeText(context, "上传成功", Toast.LENGTH_SHORT).show()
-                                                    onDismissRequest()
-                                                }else{
-                                                    Toast.makeText(context, it.msg, Toast.LENGTH_SHORT).show()
+                                            if (it.success) {
+                                                viewModel.uploadFile(
+                                                    presignedUrl,
+                                                    file.first,
+                                                ) { result ->
+                                                    if (result.success) {
+                                                        Toast.makeText( context,"上传成功",Toast.LENGTH_SHORT).show()
+                                                        onDismissRequest()
+                                                    } else {
+                                                        Toast.makeText( context, it.msg,  Toast.LENGTH_SHORT).show()
+                                                    }
+                                                    isLoading = false
+                                                    isDisplay.value = false
                                                 }
-                                                isLoading = false
-                                                isDisplay.value = false
+                                            } else {
+                                                Toast.makeText(context, it.msg, Toast.LENGTH_SHORT)
+                                                    .show()
+                                            }
+                                            isLoading = false
                                         }
+                                    } else {
+                                        Toast.makeText(context, it.msg, Toast.LENGTH_SHORT).show()
                                     }
-
+                                    isLoading = false
+                                }
                             }
                         }, enabled = !isLoading) {
                             Text("确定", color = MaterialTheme.colorScheme.primary)
@@ -273,7 +302,7 @@ fun NewPictureDialog(
 
 }
 
-fun uriToFile(context: Context, uri: Uri):Triple< File, Int, Int>{
+fun uriToFile(context: Context, uri: Uri): Triple<File, Int, Int> {
     // 创建临时文件存储
     val tempFile = File(context.cacheDir, "temp_file_${System.currentTimeMillis()}.jpg")
     tempFile.createNewFile()

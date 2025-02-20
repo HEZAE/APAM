@@ -54,6 +54,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import com.hezae.apam.R
 import com.hezae.apam.tools.UserInfo
+import com.hezae.apam.ui.activities.LoginActivity
 import com.hezae.apam.ui.activities.MainActivity
 import com.hezae.apam.viewmodels.LoginViewModel
 
@@ -198,6 +199,7 @@ fun LoginScreen(modifier: Modifier, loginViewModel: LoginViewModel, innerPadding
                                            //跳转到主界面
                                            val intent = Intent(context, MainActivity::class.java)
                                            context.startActivity(intent)
+                                           (context as? LoginActivity)?.finish()
                                        } else {
                                            Toast.makeText(
                                                context,

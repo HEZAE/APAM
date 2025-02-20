@@ -12,5 +12,5 @@ data class PresignedURL
     val width: Float,
     val height: Float,
     val level: Int,
-    val tags: Map<String,String>,
+    val tags: String,
 )

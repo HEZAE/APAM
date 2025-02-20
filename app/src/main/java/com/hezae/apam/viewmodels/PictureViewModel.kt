@@ -7,32 +7,20 @@ import androidx.lifecycle.viewModelScope
 import com.hezae.apam.datas.ApiResult
 import com.hezae.apam.datas.PresignedURL
 import com.hezae.apam.models.shemas.Album
+import com.hezae.apam.models.shemas.CreatePicture
 import com.hezae.apam.models.shemas.DeletePicture
 import com.hezae.apam.models.shemas.Picture
 import com.hezae.apam.tools.RetrofitInstance
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import retrofit2.Response
 import java.io.File
+import java.net.SocketTimeoutException
 
 class PictureViewModel : ViewModel() {
     //当前选择的相册
-    var album = mutableStateOf(
-        Album(
-            id = "",
-            user_id = "",
-            name = "测试相册",
-            description = "",
-            tag = "",
-            created_at = "",
-            cover_picture_id = "",
-            public = false,
-            count = 0
-        )
-    )
-
+    var album = mutableStateOf( Album(id = "",userId = "",name = "测试相册",description = "", tag = "",createdAt = "",coverPictureId = "", public = false,count = 0))
     val pictureApi = RetrofitInstance.pictureApi
     val minioApi = RetrofitInstance.minioApi
 
@@ -44,7 +32,23 @@ class PictureViewModel : ViewModel() {
     ) {
         try {
             viewModelScope.launch {
-                parseResponse(pictureApi.getPicture("bearer $token", pictureId), onFinished)
+                parseResponse({pictureApi.getPicture("bearer $token", pictureId)}, onFinished)
+            }
+        } catch (e: Exception) {
+            Log.e("PictureViewModel", "error:${e.message}")
+        }
+    }
+
+    //删除单个照片
+    fun deletePicture(
+        token: String,
+        pictureId: String,
+        albumId: String,
+        onFinished: (ApiResult<String>) -> Unit
+    ) {
+        try {
+            viewModelScope.launch {
+                parseResponse({pictureApi.deletePicture("bearer $token", pictureId,albumId)}, onFinished)
             }
         } catch (e: Exception) {
             Log.e("PictureViewModel", "error:${e.message}")
@@ -62,7 +66,7 @@ class PictureViewModel : ViewModel() {
             val body = DeletePicture(albumIds, pictureIds)
             try {
             viewModelScope.launch {
-                parseResponse(minioApi.deleteFiles("bearer $token",body ),
+                parseResponse({pictureApi.deletePictures("bearer $token",body )},
                     onFinished)
             }
         } catch (e: Exception) {
@@ -76,19 +80,15 @@ class PictureViewModel : ViewModel() {
         token: String,
         onFinished: (ApiResult<List<Picture>>) -> Unit
     ) {
-        try {
             viewModelScope.launch {
-                parseResponse(pictureApi.getPicturesByAlbum("bearer $token", album.value.id), onFinished)
+                parseResponse({pictureApi.getPicturesByAlbum("bearer $token", album.value.id)}, onFinished)
             }
-        } catch (e: Exception) {
-            Log.e("PictureViewModel", "error:${e.message}")
-        }
     }
 
     //获取预签名上传地址
-    fun getPresignedUrl( token: String,pictureId: String,name: String,
-        width:Float,height:Float,tags: Map<String, String>,level: Int,
-        onFinished: (ApiResult<String>) -> Unit)
+    fun getPresignedUrl(token: String, pictureId: String, name: String,
+                        width:Float, height:Float, tags: String, level: Int,
+                        onFinished: (ApiResult<String>) -> Unit)
     {
         try {
             viewModelScope.launch {
@@ -96,11 +96,11 @@ class PictureViewModel : ViewModel() {
                     onFinished(ApiResult(false, 500, "请选择相册"))
                     return@launch
                 }
-                parseResponse(
+                parseResponse({
                     minioApi.getUploadUrl(
                         "bearer $token",
                         PresignedURL(album.value.id, pictureId, name,width,height,level, tags)
-                    ), onFinished
+                    )}, onFinished
                 )
             }
         } catch (e: Exception) {
@@ -119,7 +119,7 @@ class PictureViewModel : ViewModel() {
                     return@launch
                 }
                 parseResponse(
-                    minioApi.getDownloadUrl(token,albumId = album.value.id, pictureId = pictureId,),
+                    {minioApi.getDownloadUrl(token,albumId = album.value.id, pictureId = pictureId,)},
                     onFinished
                 )
             }
@@ -156,25 +156,66 @@ class PictureViewModel : ViewModel() {
         }
     }
 
+    //更新图片信息
+    fun updatePicture(
+        token: String,
+        picture: Picture,
+        onFinished: (ApiResult<String>) -> Unit
+    ){
+        try {
+            viewModelScope.launch {
+                parseResponse({pictureApi.updatePicture("bearer $token", picture)}, onFinished)
+            }
+        } catch (e: Exception) {
+            Log.e("PictureViewModel", "error:${e.message}")
+        }
+    }
+
+    //创建图片
+    fun createPicture(
+        token: String,
+        picture: CreatePicture,
+        onFinished: (ApiResult<String>) -> Unit
+    ) {
+        viewModelScope.launch {
+            parseResponse({pictureApi.createPicture("bearer $token", picture)}, onFinished)
+        }
+    }
+
+
+
     //解析请求
     private fun <T> parseResponse(
-        response: Response<ApiResult<T>>,
+        request: suspend()-> Response<ApiResult<T>>,
         onFinished: (ApiResult<T>) -> Unit
     ) {
-        var apiResult: ApiResult<T>
+        var apiResult:ApiResult<T>
         viewModelScope.launch {
-            apiResult = try {
-                if (response.isSuccessful) {
-                    response.body()!!
-                } else {
-                    val errorBody = response.errorBody()
-                    ApiResult(false, response.code(), errorBody!!.string())
+            try {
+                val response = request()
+                if (response.isSuccessful&&response.body()!=null) {
+                    apiResult = if (response.body()!!.success){
+                        ApiResult(true, response.code(),"", response.body()!!.data)
+                    }else{
+                        ApiResult(false, response.code(),response.body()!!.msg)
+                    }
+                }else {
+                    val errorBody  = response.errorBody()
+                    apiResult = if (errorBody == null){
+                        ApiResult(false, response.code(),"")
+                    }else{
+                        ApiResult(false, response.code(), errorBody.string())
+                    }
                 }
-            } catch (e: Exception) {
-                ApiResult(false, 500, e.message.toString())
+            }
+            catch (e: SocketTimeoutException){
+                apiResult = ApiResult(false, 500, "网络请求超时")
+            }
+            catch (e: Exception) {
+                apiResult =  ApiResult(false, 500, e.message.toString())
             }
             if (!apiResult.success) {
-                Log.e("PictureViewModel", "error:" + apiResult.msg)
+                Log.e("PictureViewModel", "error:"+apiResult.msg)
             }
             onFinished(apiResult)
         }

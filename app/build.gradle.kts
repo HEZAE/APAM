@@ -85,10 +85,8 @@ dependencies {
     implementation (libs.retrofit)
     implementation (libs.converter.gson)
     implementation (libs.kotlinx.coroutines.android)
-
     implementation(libs.androidx.activity.activity.ktx8)
     implementation (libs.androidx.fragment.ktx)
-
     implementation(libs.kotlinx.datetime)
-
+   // implementation(libs.rabbitmq.kotlin)
 }

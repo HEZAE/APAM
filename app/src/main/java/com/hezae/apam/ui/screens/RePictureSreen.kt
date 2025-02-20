@@ -1,6 +1,7 @@
 package com.hezae.apam.ui.screens
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -12,12 +13,17 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -35,186 +41,257 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.hezae.apam.R
 import com.hezae.apam.models.shemas.PictureItem
 import com.hezae.apam.tools.UserInfo
+import com.hezae.apam.ui.dialogs.EditPictureDialog
 import com.hezae.apam.viewmodels.PictureViewModel
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RePictureScreen(modifier: Modifier, item: PictureItem, viewModel: PictureViewModel) {
-    Card(modifier.fillMaxSize()) {
-        var url by remember { mutableStateOf("") }
-        val coroutineScope = rememberCoroutineScope()
-        LaunchedEffect(item) {
-            coroutineScope.launch {
-                viewModel.getPresignedDownloadUrl(
-                    token = "Bearer ${UserInfo.userToken}",
-                    pictureId = item.id,
-                    onFinished = {
-                        Log.e("PictureCard", item.id)
-                        url = if (it.success) {
-                            it.data!!
-                        } else {
-                            ""
-                        }
-                        Log.d("PictureCard", "getPresignedDownloadUrl: ${it.data}")
+fun RePictureScreen(modifier: Modifier, item: PictureItem, viewModel: PictureViewModel,onDismissRequest: () -> Unit) {
+    val context = LocalContext.current
+    var isDeleting by remember { mutableStateOf(false) }
+    var url by remember { mutableStateOf("") }
+    val coroutineScope = rememberCoroutineScope()
+    val isDisplayEdit  =  remember { mutableStateOf(false) }
+    val isDisplayAbout = remember { mutableStateOf(false) }
+    LaunchedEffect(item) {
+        coroutineScope.launch {
+            viewModel.getPresignedDownloadUrl(
+                token = "Bearer ${UserInfo.userToken}",
+                pictureId = item.id,
+                onFinished = {
+                    Log.e("PictureCard", item.id)
+                    url = if (it.success) {
+                        it.data!!
+                    } else {
+                        ""
                     }
-                )
-            }
+                    Log.d("PictureCard", "getPresignedDownloadUrl: ${it.data}")
+                }
+            )
         }
-        Column(
-            Modifier.weight(1f).verticalScroll(rememberScrollState())) {
-            Box(
-                modifier = Modifier.fillMaxWidth().pointerInput(Unit) {
-                        detectTapGestures(
-                            onLongPress = {
-
-                            },
-                            onTap = {
-
+    }
+    Card(modifier.fillMaxSize()) {
+        Box(Modifier.fillMaxSize()){
+            //显示
+            Column(Modifier.fillMaxSize()){
+                //图片
+                Box(modifier = Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center) {
+                    if (url.isNotEmpty()) {
+                        Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()))
+                        {
+                            AsyncImage(
+                                model = url,
+                                contentDescription = null,
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier
+                                    .fillMaxWidth(),
+                                placeholder = null, // 默认图标
+                                error = null,
+                                onLoading = {
+                                    item.isLoading.value = true
+                                },
+                                onSuccess = {
+                                    item.isInit.value = true
+                                    item.isLoading.value = false
+                                    item.isError.value = false
+                                },
+                                onError = {
+                                    item.isInit.value = true
+                                    item.isLoading.value = false
+                                    item.isError.value = true
+                                }
+                            )
+                        }
+                    }
+                    else {
+                        CircularProgressIndicator(
+                            modifier = Modifier.align(Alignment.Center)
+                            .size(40.dp),
+                            color = MaterialTheme.colorScheme.primary,
+                            strokeWidth = 2.dp
+                        )
+                    }
+                }
+                //操作
+                Row(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.primary.copy(0.1f)),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    TextButton(
+                        {
+                            isDisplayEdit.value = true
+                        }//修改
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = ImageVector.Companion.vectorResource(id = R.drawable.ic_wirte),
+                                contentDescription = "filter",
+                                Modifier.size(18.dp),
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                            Spacer(Modifier.width(2.dp))
+                            Text(
+                                text = "修改",
+                                color = MaterialTheme.colorScheme.primary,
+                                fontSize = 12.sp
+                            )
+                        }
+                    }
+                    TextButton(
+                        {
+                            isDeleting = true
+                            coroutineScope.launch {
+                                viewModel.deletePicture(
+                                    token = UserInfo.userToken,
+                                    pictureId = item.id,
+                                    albumId = item.albumId,
+                                    onFinished = {
+                                        if (it.success) {
+                                            onDismissRequest()
+                                        }else{
+                                            Toast.makeText(
+                                                context,
+                                                "删除失败",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                        }
+                                        isDeleting = false
+                                    }
+                                )
+                            }
+                        }//删除
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = ImageVector.Companion.vectorResource(id = R.drawable.ic_delete),
+                                contentDescription = "filter",
+                                Modifier.size(18.dp),
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                            Spacer(Modifier.width(2.dp))
+                            Text(
+                                text = "删除",
+                                color = MaterialTheme.colorScheme.primary,
+                                fontSize = 12.sp
+                            )
+                        }
+                    }
+                    TextButton(
+                        {}//创作
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = ImageVector.Companion.vectorResource(id = R.drawable.ic_theme),
+                                contentDescription = "filter",
+                                Modifier.size(18.dp),
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                            Spacer(Modifier.width(2.dp))
+                            Text(
+                                text = "创作",
+                                color = MaterialTheme.colorScheme.primary,
+                                fontSize = 12.sp
+                            )
+                        }
+                    }
+                    TextButton(
+                        {}//分享
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = ImageVector.Companion.vectorResource(id = R.drawable.ic_share),
+                                contentDescription = "filter",
+                                Modifier.size(18.dp),
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                            Spacer(Modifier.width(2.dp))
+                            Text(
+                                text = "分享",
+                                color = MaterialTheme.colorScheme.primary,
+                                fontSize = 12.sp
+                            )
+                        }
+                    }
+                    TextButton(
+                        {
+                            isDisplayAbout.value = true
+                        }//关于
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = ImageVector.Companion.vectorResource(id = R.drawable.ic_about),
+                                contentDescription = "filter",
+                                Modifier.size(18.dp),
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                            Spacer(Modifier.width(2.dp))
+                            Text(
+                                text = "关于",
+                                color = MaterialTheme.colorScheme.primary,
+                                fontSize = 12.sp
+                            )
+                        }
+                    }
+                    if (isDisplayEdit.value){
+                        EditPictureDialog(
+                            isDisplay = isDisplayEdit,
+                            item = item,
+                            viewModel = viewModel,
+                            onDismissRequest = {
+                                onDismissRequest()
+                                isDisplayEdit.value = false
                             }
                         )
-                    },
-            ) {
-                if (url.isNotEmpty()) {
-                    AsyncImage(
-                        model = url,
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        placeholder = painterResource(id = R.drawable.ic_picture), // 默认图标
-                        error = painterResource(id = R.drawable.ic_error_picture),
-                        onLoading = {
-                            item.isLoading.value = true
-                        },
-                        onSuccess = {
-                            item.isInit.value = true
-                            item.isLoading.value = false
-                            item.isError.value = false
-                        },
-                        onError = {
-                            item.isInit.value = true
-                            item.isLoading.value = false
-                            item.isError.value = true
-                        }
-                    )
-                } else {
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_picture),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .aspectRatio(1f)
-                            .clip(RoundedCornerShape(2.dp)),
-                        contentScale = ContentScale.Crop,
-                    )
-                }
-            }
-        }
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.primary.copy(0.1f)),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            TextButton(
-                {}
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = ImageVector.Companion.vectorResource(id = R.drawable.ic_wirte),
-                        contentDescription = "filter",
-                        Modifier.size(18.dp),
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                    Spacer(Modifier.width(2.dp))
-                    Text(
-                        text = "修改",
-                        color = MaterialTheme.colorScheme.primary,
-                        fontSize = 12.sp
-                    )
-                }
-            }
-            TextButton(
-                {
+                    }
 
                 }
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = ImageVector.Companion.vectorResource(id = R.drawable.ic_delete),
-                        contentDescription = "filter",
-                        Modifier.size(18.dp),
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                    Spacer(Modifier.width(2.dp))
-                    Text(
-                        text = "删除",
-                        color = MaterialTheme.colorScheme.primary,
-                        fontSize = 12.sp
-                    )
-                }
             }
-            TextButton(
-                {}
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = ImageVector.Companion.vectorResource(id = R.drawable.ic_theme),
-                        contentDescription = "filter",
-                        Modifier.size(18.dp),
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                    Spacer(Modifier.width(2.dp))
-                    Text(
-                        text = "创作",
-                        color = MaterialTheme.colorScheme.primary,
-                        fontSize = 12.sp
-                    )
-                }
+            //指示器
+            if (isDeleting){
+                CircularProgressIndicator(
+                    modifier = Modifier
+                        .size(20.dp).align(Alignment.Center),
+                    color = MaterialTheme.colorScheme.primary,
+                    strokeWidth = 2.dp
+                )
             }
-            TextButton(
-                {}
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = ImageVector.Companion.vectorResource(id = R.drawable.ic_share),
-                        contentDescription = "filter",
-                        Modifier.size(18.dp),
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                    Spacer(Modifier.width(2.dp))
-                    Text(
-                        text = "分享",
-                        color = MaterialTheme.colorScheme.primary,
-                        fontSize = 12.sp
-                    )
-                }
-            }
-            TextButton(
-                {}
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = ImageVector.Companion.vectorResource(id = R.drawable.ic_about),
-                        contentDescription = "filter",
-                        Modifier.size(18.dp),
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                    Spacer(Modifier.width(2.dp))
-                    Text(
-                        text = "关于",
-                        color = MaterialTheme.colorScheme.primary,
-                        fontSize = 12.sp
-                    )
+
+            if (isDisplayAbout.value){
+                BasicAlertDialog(
+                    {
+                        isDisplayAbout.value = false
+                    },
+                ) {
+                    Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(contentColor = MaterialTheme.colorScheme.primary)){
+                        Column(Modifier.fillMaxWidth().padding(10.dp)){
+                            Text(text = "名称:${item.name}", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                            Text(text = "标签:${item.description}", fontSize = 12.sp)
+                            Text(text = "大小:${item.width}x${item.height}", fontSize = 12.sp)
+                            Text(text = "归属相册:${viewModel.album.value.name}", fontSize = 12.sp)
+                            Text(text = "更新日期:${item.createdAt}", fontSize = 12.sp)
+                            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End){
+                                TextButton( {isDisplayAbout.value = false })
+                                {
+                                    Text(
+                                        text = "关闭",
+                                        color = MaterialTheme.colorScheme.primary,
+                                        fontSize = 12.sp
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }

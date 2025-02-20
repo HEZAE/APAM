@@ -59,13 +59,11 @@ fun PictureCard(
                 token = "Bearer ${UserInfo.userToken}",
                 pictureId = item.id,
                 onFinished = {
-                    Log.e("PictureCard", item.id)
                     url = if (it.success) {
                         it.data!!
                     } else {
                         ""
                     }
-                    Log.d("PictureCard", "getPresignedDownloadUrl: ${it.data}")
                 }
             )
         }
