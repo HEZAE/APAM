@@ -223,6 +223,7 @@ fun EditPictureDialog(
                                     createdAt = LocalDateTime.now().toString(),
                                     width = item.width,
                                     height = item.height,
+                                    size = item.size,
                                     level = if (public.value) 1 else 2
                                 )
                                 viewModel.updatePicture(UserInfo.userToken, picture){

@@ -97,18 +97,18 @@ fun NewAlbumDialog(
                                 onClick = { isPublic = true }
                             )
                             Text(
-                                "公开",
+                                "公开", color = MaterialTheme.colorScheme.primary
                             )
                             RadioButton(
                                 selected = !isPublic,
                                 onClick = { isPublic = false }
                             )
                             Text(
-                                "私密",
+                                "私密", color = MaterialTheme.colorScheme.primary
                             )
                         }
                     }
-                    Row(Modifier.fillMaxWidth().padding(4.dp)){
+                    Row(Modifier.fillMaxWidth().padding(4.dp), horizontalArrangement = Arrangement.End){
                         TextButton({
                             isDisplay.value = false
                         }, enabled = !isLoading) {

@@ -27,6 +27,7 @@ import com.hezae.apam.ui.others.getFolderUri
 import com.hezae.apam.ui.permissions.SinglePermission
 import com.hezae.apam.viewmodels.MainViewModel
 import com.hezae.apam.viewmodels.AlbumViewModel
+import com.hezae.apam.viewmodels.TopicViewModel
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -40,6 +41,8 @@ class MainActivity : ComponentActivity() {
             APAMTheme(style = selectedTheme) {
                 val mainViewModel: MainViewModel = viewModel()
                 val albumViewModel: AlbumViewModel = viewModel()
+                val topicViewModel: TopicViewModel = viewModel()
+
                 val saveUrl: Uri? = getFolderUri(this)
                 if (saveUrl==null){
                     // Toast.makeText(this, "请选择下载文件保存地址", Toast.LENGTH_SHORT).show()
@@ -99,8 +102,8 @@ class MainActivity : ComponentActivity() {
                                 )
 
                                 2 -> FindScreen(
-                                    viewModel = viewModel,
-                                    modifier = Modifier.fillMaxSize()
+                                    modifier = Modifier.fillMaxSize(),
+                                    viewModel = topicViewModel
                                 )
 
                                 3 -> UserScreen(modifier = Modifier.fillMaxSize(),mainViewModel)

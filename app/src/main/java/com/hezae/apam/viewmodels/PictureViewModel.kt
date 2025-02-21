@@ -20,7 +20,7 @@ import java.net.SocketTimeoutException
 
 class PictureViewModel : ViewModel() {
     //当前选择的相册
-    var album = mutableStateOf( Album(id = "",userId = "",name = "测试相册",description = "", tag = "",createdAt = "",coverPictureId = "", public = false,count = 0))
+    var album = mutableStateOf( Album(id = "",userId = "",name = "相册",description = "", tag = "",createdAt = "",coverPictureId = "", public = false,count = 0))
     val pictureApi = RetrofitInstance.pictureApi
     val minioApi = RetrofitInstance.minioApi
 
@@ -87,7 +87,7 @@ class PictureViewModel : ViewModel() {
 
     //获取预签名上传地址
     fun getPresignedUrl(token: String, pictureId: String, name: String,
-                        width:Float, height:Float, tags: String, level: Int,
+                        width:Float, height:Float, size:Long,tags: String, level: Int,
                         onFinished: (ApiResult<String>) -> Unit)
     {
         try {
@@ -99,7 +99,7 @@ class PictureViewModel : ViewModel() {
                 parseResponse({
                     minioApi.getUploadUrl(
                         "bearer $token",
-                        PresignedURL(album.value.id, pictureId, name,width,height,level, tags)
+                        PresignedURL(album.value.id, pictureId, name,width,height,size,level, tags)
                     )}, onFinished
                 )
             }
@@ -110,7 +110,7 @@ class PictureViewModel : ViewModel() {
     }
 
     //获取预签名下载地址
-    fun getPresignedDownloadUrl( token: String,pictureId:String,
+    fun getPresignedDownloadUrl( token: String,albumId: String,pictureId:String,
         onFinished: (ApiResult<String>) -> Unit) {
         try {
             viewModelScope.launch {
@@ -119,7 +119,7 @@ class PictureViewModel : ViewModel() {
                     return@launch
                 }
                 parseResponse(
-                    {minioApi.getDownloadUrl(token,albumId = album.value.id, pictureId = pictureId,)},
+                    {minioApi.getDownloadUrl(token,albumId = albumId, pictureId = pictureId,)},
                     onFinished
                 )
             }

@@ -8,11 +8,13 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -47,18 +49,23 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.ImageLoader
 import coil.compose.AsyncImage
+import coil.compose.rememberAsyncImagePainter
+import coil.request.CachePolicy
 import com.hezae.apam.R
 import com.hezae.apam.models.shemas.PictureItem
+import com.hezae.apam.models.shemas.PictureItemEx
 import com.hezae.apam.tools.UserInfo
 import com.hezae.apam.ui.dialogs.EditPictureDialog
 import com.hezae.apam.viewmodels.PictureViewModel
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RePictureScreen(modifier: Modifier, item: PictureItem, viewModel: PictureViewModel,onDismissRequest: () -> Unit) {
+fun RePictureScreen(modifier: Modifier, item: PictureItemEx, viewModel: PictureViewModel, onDismissRequest: () -> Unit) {
     val context = LocalContext.current
     var isDeleting by remember { mutableStateOf(false) }
     var url by remember { mutableStateOf("") }
@@ -69,6 +76,7 @@ fun RePictureScreen(modifier: Modifier, item: PictureItem, viewModel: PictureVie
         coroutineScope.launch {
             viewModel.getPresignedDownloadUrl(
                 token = "Bearer ${UserInfo.userToken}",
+                albumId = item.albumId,
                 pictureId = item.id,
                 onFinished = {
                     Log.e("PictureCard", item.id)
@@ -89,29 +97,17 @@ fun RePictureScreen(modifier: Modifier, item: PictureItem, viewModel: PictureVie
                 //图片
                 Box(modifier = Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center) {
                     if (url.isNotEmpty()) {
-                        Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()))
+                        Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()))
                         {
                             AsyncImage(
-                                model = url,
+                                modifier = Modifier.fillMaxWidth(),
                                 contentDescription = null,
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier
-                                    .fillMaxWidth(),
-                                placeholder = null, // 默认图标
-                                error = null,
-                                onLoading = {
-                                    item.isLoading.value = true
-                                },
-                                onSuccess = {
-                                    item.isInit.value = true
-                                    item.isLoading.value = false
-                                    item.isError.value = false
-                                },
-                                onError = {
-                                    item.isInit.value = true
-                                    item.isLoading.value = false
-                                    item.isError.value = true
-                                }
+                                contentScale = ContentScale.FillWidth,
+                                model = item.file,
+                                imageLoader = ImageLoader.Builder(context)
+                                    .diskCachePolicy(CachePolicy.DISABLED) // 禁用磁盘缓存
+                                    .memoryCachePolicy(CachePolicy.DISABLED) // 禁用内存缓存
+                                    .build()
                             )
                         }
                     }
@@ -277,7 +273,8 @@ fun RePictureScreen(modifier: Modifier, item: PictureItem, viewModel: PictureVie
                         Column(Modifier.fillMaxWidth().padding(10.dp)){
                             Text(text = "名称:${item.name}", fontSize = 20.sp, fontWeight = FontWeight.Bold)
                             Text(text = "标签:${item.description}", fontSize = 12.sp)
-                            Text(text = "大小:${item.width}x${item.height}", fontSize = 12.sp)
+                            Text(text = "像素:${item.width}x${item.height}", fontSize = 12.sp)
+                            Text(text = "大小:${String.format(Locale.US, "%.2f", item.size / 1024.0)}kb", fontSize = 12.sp)
                             Text(text = "归属相册:${viewModel.album.value.name}", fontSize = 12.sp)
                             Text(text = "更新日期:${item.createdAt}", fontSize = 12.sp)
                             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End){

@@ -31,11 +31,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.ImageLoader
 import coil.compose.AsyncImage
+import coil.request.CachePolicy
 import com.hezae.apam.R
 import com.hezae.apam.models.shemas.PictureItem
 import com.hezae.apam.tools.UserInfo
@@ -51,12 +54,14 @@ fun PictureCard(
     onClick: () -> Unit,
     onLongClick: () -> Unit,
 ) {
+    val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     var url by remember { mutableStateOf("") }
     LaunchedEffect(Unit) {
         coroutineScope.launch {
             viewModel.getPresignedDownloadUrl(
                 token = "Bearer ${UserInfo.userToken}",
+                albumId = item.albumId,
                 pictureId = item.id,
                 onFinished = {
                     url = if (it.success) {
@@ -109,7 +114,12 @@ fun PictureCard(
                         item.isInit.value = true
                         item.isLoading.value = false
                         item.isError.value = true
-                    }
+                    },
+                    imageLoader = ImageLoader.Builder(context)
+                    .diskCachePolicy(CachePolicy.DISABLED) // 禁用磁盘缓存
+                    .memoryCachePolicy(CachePolicy.DISABLED) // 禁用内存缓存
+                    .build()
+
                 )
             } else {
                Image(

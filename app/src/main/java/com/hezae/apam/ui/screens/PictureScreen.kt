@@ -61,9 +61,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hezae.apam.R
 import com.hezae.apam.models.shemas.PictureItem
+import com.hezae.apam.models.shemas.PictureItemEx
 import com.hezae.apam.tools.UserInfo
 import com.hezae.apam.ui.activities.PictureActivity
 import com.hezae.apam.ui.cards.PictureCard
+import com.hezae.apam.ui.cards.PictureCardEx
 import com.hezae.apam.ui.dialogs.NewPictureDialog
 import com.hezae.apam.viewmodels.PictureViewModel
 import kotlinx.coroutines.InternalCoroutinesApi
@@ -85,20 +87,29 @@ fun PictureScreen(innerPadding: PaddingValues, viewModel: PictureViewModel) {
     val refreshState = rememberPullToRefreshState()
     var isRefreshing by remember { mutableStateOf(false) }
     //相册集合
-    val pictures = remember { mutableStateListOf<PictureItem>() }
+    val pictures = remember { mutableStateListOf<PictureItemEx>() }
     //是否选择图片
     val isSelected = remember { mutableStateOf(false) }
-
-
     //被选中的item
-    val selectedItem = remember { mutableStateOf<PictureItem?>(null) }
+    val selectedItem = remember { mutableStateOf<PictureItemEx?>(null) }
     //是否显示操作台
     val isDisplayOperation = remember { mutableStateOf(false) }
     //长按选中的Item
-    val selectedItemLongPress = remember { mutableStateOf<PictureItem?>(null) }
+    val selectedItemLongPress = remember { mutableStateOf<PictureItemEx?>(null) }
     //选择的个数
     val selectedCount = remember { mutableIntStateOf(0) }
 
+    val openImageLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.GetContent())
+        { uri ->
+            uri?.let {
+                imageUri = uri
+                imageData = getImageDataFromUri(uri, context)
+                if (imageData != null) {
+                    isDisplay.value = true
+                }
+            }
+        }
     fun getPicture() {
         isRefreshing = true
         pictures.clear()
@@ -108,7 +119,7 @@ fun PictureScreen(innerPadding: PaddingValues, viewModel: PictureViewModel) {
                     if (it.data != null) {
                         for (item in it.data) {
                             pictures.add(
-                                PictureItem(
+                                PictureItemEx(
                                     id = item.id,
                                     userId = item.userId,
                                     albumId = item.albumId,
@@ -117,6 +128,7 @@ fun PictureScreen(innerPadding: PaddingValues, viewModel: PictureViewModel) {
                                     createdAt = item.createdAt,
                                     width = item.width,
                                     height = item.height,
+                                    size = item.size,
                                     level = item.level,
                                     isInit = false,
                                     isLoading = false,
@@ -136,25 +148,13 @@ fun PictureScreen(innerPadding: PaddingValues, viewModel: PictureViewModel) {
     LaunchedEffect(Unit) {
         getPicture()
     }
-
     Card(
         modifier = Modifier.fillMaxSize(),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onPrimary),
     ) {
-        val openImageLauncher =
-            rememberLauncherForActivityResult(ActivityResultContracts.GetContent())
-            { uri ->
-                uri?.let {
-                    imageUri = uri
-                    imageData = getImageDataFromUri(uri, context)
-                    if (imageData != null) {
-                        isDisplay.value = true
-                    }
-                }
-            }
-        Column(
-            modifier = Modifier
+
+        Column( modifier = Modifier
                 .padding(
                     top = innerPadding.calculateTopPadding(),
                     start = innerPadding.calculateStartPadding(LocalLayoutDirection.current),
@@ -162,8 +162,7 @@ fun PictureScreen(innerPadding: PaddingValues, viewModel: PictureViewModel) {
                     bottom = innerPadding.calculateBottomPadding() + 5.dp
                 )
                 .fillMaxSize()
-                .padding(5.dp)
-        )
+                .padding(5.dp))
         {
             //顶部
             AnimatedVisibility(!isSelected.value) {
@@ -278,10 +277,9 @@ fun PictureScreen(innerPadding: PaddingValues, viewModel: PictureViewModel) {
                                 tint = MaterialTheme.colorScheme.primary
                             )
                         }
-                    }
+                    }//右侧按钮
                 }
             }
-
             Box(
                 Modifier
                     .weight(1f)
@@ -302,8 +300,7 @@ fun PictureScreen(innerPadding: PaddingValues, viewModel: PictureViewModel) {
                         )
                     }
                 ) {
-                    Card(
-                        Modifier
+                    Card( Modifier
                             .fillMaxSize()
                             .padding(bottom = 4.dp)
                     ) {
@@ -320,7 +317,7 @@ fun PictureScreen(innerPadding: PaddingValues, viewModel: PictureViewModel) {
                                         .fillMaxWidth()
                                         .padding(4.dp)
                                 ) {
-                                    PictureCard(
+                                    PictureCardEx(
                                         item = item,
                                         viewModel = viewModel,
                                         onClick = {
@@ -370,11 +367,10 @@ fun PictureScreen(innerPadding: PaddingValues, viewModel: PictureViewModel) {
                                                 .align(Alignment.BottomEnd)
 
                                         )
-                                    }
+                                    } //选择器
                                 }
                             }
-                        }
-
+                        }//照片内容
                         AnimatedVisibility(isDisplayOperation.value) {
                             Row(
                                 Modifier
@@ -382,8 +378,7 @@ fun PictureScreen(innerPadding: PaddingValues, viewModel: PictureViewModel) {
                                     .background(MaterialTheme.colorScheme.primary.copy(0.1f)),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                TextButton(
-                                    {
+                                TextButton({
                                         if (selectedCount.intValue == pictures.size) {
                                             selectedCount.intValue = 0
                                             for (item in pictures) {
@@ -395,8 +390,8 @@ fun PictureScreen(innerPadding: PaddingValues, viewModel: PictureViewModel) {
                                                 item.isSelected.value = true
                                             }
                                         }
-                                    }
-                                ) {
+                                    })
+                                {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
                                         if (selectedCount.intValue == pictures.size) {
                                             Icon(
@@ -433,9 +428,8 @@ fun PictureScreen(innerPadding: PaddingValues, viewModel: PictureViewModel) {
                                             fontSize = 12.sp
                                         )
                                     }
-                                }
-                                TextButton(
-                                    {
+                                }//选择
+                                TextButton({
                                         isRefreshing = true
                                         coroutineScope.launch {
                                             val pictureIds = mutableListOf<String>()
@@ -467,8 +461,8 @@ fun PictureScreen(innerPadding: PaddingValues, viewModel: PictureViewModel) {
                                             }
                                         }
 
-                                    }
-                                ) {
+                                    })
+                                {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
                                         Icon(
                                             imageVector = ImageVector.Companion.vectorResource(id = R.drawable.ic_about),
@@ -483,10 +477,9 @@ fun PictureScreen(innerPadding: PaddingValues, viewModel: PictureViewModel) {
                                             fontSize = 12.sp
                                         )
                                     }
-                                }
-                                TextButton(
-                                    {}
-                                ) {
+                                }//删除
+                                TextButton( {})
+                                {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
                                         Icon(
                                             imageVector = ImageVector.Companion.vectorResource(id = R.drawable.ic_cloudy),
@@ -501,11 +494,12 @@ fun PictureScreen(innerPadding: PaddingValues, viewModel: PictureViewModel) {
                                             fontSize = 12.sp
                                         )
                                     }
-                                }
+                                }//分享
                             }
-                        }
-                    }
+                        }//操作控制
+                    }//内容
                 }
+
                 Column(Modifier.fillMaxSize()) {
                     AnimatedVisibility(isSelected.value)
                     {
@@ -518,11 +512,10 @@ fun PictureScreen(innerPadding: PaddingValues, viewModel: PictureViewModel) {
                             getPicture()
                         }
                     }
-                }
+                }//查看详细相片界面
             }
         }
 
-        //上传对话框
         if (isDisplay.value && imageData != null && imageUri != null) {
             NewPictureDialog(
                 isDisplay = isDisplay,
@@ -533,7 +526,7 @@ fun PictureScreen(innerPadding: PaddingValues, viewModel: PictureViewModel) {
                    getPicture()
                 }
             )
-        }
+        } //上传对话框
     }
 }
 

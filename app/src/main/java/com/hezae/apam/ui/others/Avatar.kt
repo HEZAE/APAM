@@ -60,6 +60,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import com.hezae.apam.viewmodels.MainViewModel
+import java.util.Locale
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -88,7 +89,7 @@ fun Avatar(
             Log.e("token", token)
             mainViewModel.getUser(token) {
                if(it.success){
-                   cloudyProgress  =  mainViewModel.user.value.capacity_used/mainViewModel.user.value.capacity
+                   cloudyProgress  = ((mainViewModel.user.value.capacity_used/(1024.0*1024))/(mainViewModel.user.value.capacity/1024.0)).toFloat()
                    tokenProgress = (mainViewModel.user.value.count_used.toFloat()/mainViewModel.user.value.count)
                }else{
                    Toast.makeText(context, it.msg, Toast.LENGTH_SHORT).show()
@@ -224,7 +225,10 @@ fun Avatar(
                     }
                 )
                 Spacer(Modifier.width(4.dp))
-                Text("${mainViewModel.user.value.capacity_used}M/${mainViewModel.user.value.capacity}M",fontSize = 12.sp, color = MaterialTheme.colorScheme.primary)
+                Text(
+                    text = "${String.format(Locale.US, "%.2f", mainViewModel.user.value.capacity_used/(1024.0*1024))}M/" +
+                            "${String.format(Locale.US, "%.2f", mainViewModel.user.value.capacity / 1024.0)}M",
+                    fontSize = 12.sp, color = MaterialTheme.colorScheme.primary)
                 Spacer(Modifier.width(4.dp))
                 Text("续费", color = MaterialTheme.colorScheme.primary,fontSize = 12.sp, modifier = Modifier.clickable {  })
             }

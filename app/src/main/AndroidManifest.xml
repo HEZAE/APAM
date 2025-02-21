@@ -28,6 +28,11 @@
         android:theme="@style/Theme.APAM"
         tools:targetApi="33">
         <activity
+            android:name=".ui.activities.NewTopicActivity"
+            android:exported="false"
+            android:label="@string/title_activity_new_topic"
+            android:theme="@style/Theme.APAM" />
+        <activity
             android:name=".ui.activities.PictureActivity"
             android:exported="false"
             android:label="@string/title_activity_picture"

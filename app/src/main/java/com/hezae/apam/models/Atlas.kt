@@ -20,14 +20,15 @@ class AtlasItem(
     size: Int = 0,
     isPrivate: Boolean = false,
     coverId: String = "",
-    discription: String = "",
+    description: String = "",
     isSelected:Boolean = false,
     isInit: Boolean = false,
     isLoading: Boolean = false, // 是否正在加载
     isError: Boolean = false // 是否加载失败
-) : Atlas(id, title, size, isPrivate, coverId) {
+) : Atlas(id, title, size, isPrivate, coverId,description) {
     var isInit: MutableState<Boolean> = mutableStateOf(isInit)
     var isLoading: MutableState<Boolean> = mutableStateOf(isLoading)
     var isError: MutableState<Boolean> = mutableStateOf(isError)
     var isSelected: MutableState<Boolean> = mutableStateOf(isSelected)
 }
+

@@ -11,6 +11,7 @@ data class PresignedURL
     val name: String,
     val width: Float,
     val height: Float,
+    val size :Long,
     val level: Int,
     val tags: String,
 )

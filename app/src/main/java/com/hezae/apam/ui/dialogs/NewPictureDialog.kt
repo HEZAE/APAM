@@ -234,8 +234,9 @@ fun NewPictureDialog(
                                     UserInfo.userToken,
                                     pictureId,
                                     name,
-                                    file.second.toFloat(),
-                                    file.third.toFloat(),
+                                    file.width.toFloat(),
+                                    file.height.toFloat(),
+                                    file.fileSize,
                                     tags.toList().toString(),
                                     0
                                 ) {
@@ -247,8 +248,9 @@ fun NewPictureDialog(
                                                 name = name,
                                                 description = tags.toList().toString(),
                                                 createdAt = LocalDateTime.now().toString(),
-                                                width = file.second.toFloat(),
-                                                height = file.third.toFloat(),
+                                                width = file.width.toFloat(),
+                                                height = file.height.toFloat(),
+                                                size = file.fileSize,
                                                 level = 0,
                                                 albumId = viewModel.album.value.id
                                             )
@@ -256,7 +258,7 @@ fun NewPictureDialog(
                                             if (it.success) {
                                                 viewModel.uploadFile(
                                                     presignedUrl,
-                                                    file.first,
+                                                    file.file,
                                                 ) { result ->
                                                     if (result.success) {
                                                         Toast.makeText( context,"上传成功",Toast.LENGTH_SHORT).show()
@@ -302,7 +304,7 @@ fun NewPictureDialog(
 
 }
 
-fun uriToFile(context: Context, uri: Uri): Triple<File, Int, Int> {
+fun uriToFile(context: Context, uri: Uri): FileInfo {
     // 创建临时文件存储
     val tempFile = File(context.cacheDir, "temp_file_${System.currentTimeMillis()}.jpg")
     tempFile.createNewFile()
@@ -321,8 +323,17 @@ fun uriToFile(context: Context, uri: Uri): Triple<File, Int, Int> {
     val options = BitmapFactory.Options().apply {
         inJustDecodeBounds = true // 只解码边界信息，不加载图片到内存
     }
+    val fileSize = tempFile.length()
+
     BitmapFactory.decodeFile(tempFile.absolutePath, options)
     val width = options.outWidth
     val height = options.outHeight
-    return Triple(tempFile, width, height)
+    return FileInfo(tempFile, width, height, fileSize)
 }
+
+data class FileInfo(
+    val file: File,
+    val width: Int,
+    val height: Int,
+    val fileSize: Long
+)

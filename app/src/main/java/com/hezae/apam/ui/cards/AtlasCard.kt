@@ -33,12 +33,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.ImageLoader
 import coil.compose.AsyncImage
 import coil.compose.DefaultModelEqualityDelegate
 import coil.compose.EqualityDelegate
+import coil.request.CachePolicy
 import com.hezae.apam.R
 import com.hezae.apam.models.Atlas
 import com.hezae.apam.models.AtlasItem
@@ -56,28 +59,17 @@ fun AtlasCard(
     item: AtlasItem,
     isDisplaySelection: MutableState<Boolean> = mutableStateOf(false),
     viewModel: AlbumViewModel,
-    onClickAlbum: (Atlas) -> Unit
+    onClickAlbum: (Atlas) -> Unit,
 ) {
     //是否显示更新对话框
+    val  context = LocalContext.current
     val isDisplayEdit = remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
     //发起http获取封面图片
     var url by remember { mutableStateOf("") }
     LaunchedEffect(item.isInit.value) {
         coroutineScope.launch {
-            if(item.coverId.isEmpty()){
-                viewModel.getAlbumCover(
-                    token = UserInfo.userToken,
-                    albumId = item.id,
-                    onFinished = {
-                        if (it.success) {
-                            val picture: Picture = it.data!!
-                            item.coverId = picture.id
-                            url = item.coverId
-                        }
-                    }
-                )
-            }else{
+            if(item.coverId.isNotEmpty())
                 viewModel.getPresignedDownloadUrl(
                     token = "Bearer ${UserInfo.userToken}",
                     pictureId = item.coverId,
@@ -92,8 +84,7 @@ fun AtlasCard(
                         }
                         Log.d("getPresignedDownloadUrl", "url: $url")
                     }
-                )
-            }
+            )
         }
     }
     val equalityDelegate: EqualityDelegate = DefaultModelEqualityDelegate
@@ -104,7 +95,20 @@ fun AtlasCard(
             containerColor = Color.Transparent,
         ),
     ) {
-        Box(modifier = Modifier.fillMaxWidth()) {
+        Box(modifier = Modifier.fillMaxWidth().pointerInput(Unit) {
+            detectTapGestures(
+                onLongPress = {
+                    if(!isDisplaySelection.value){
+                        isDisplaySelection.value = true
+                    }else{
+                        isDisplaySelection.value = true
+                    }
+                },
+                onTap = {
+                   onClickAlbum(item)
+                }
+            )
+        }) {
             AsyncImage(
                 model = url,
                 contentDescription = null,
@@ -113,20 +117,7 @@ fun AtlasCard(
                     .fillMaxWidth()
                     .aspectRatio(1f)
                     .clip(RoundedCornerShape(8.dp))
-                    .pointerInput(Unit) {
-                        detectTapGestures(
-                            onLongPress = {
-                                if(!isDisplaySelection.value){
-                                    isDisplaySelection.value = true
-                                }else{
-                                    isDisplaySelection.value = true
-                                }
-                            },
-                            onTap = {
-                                onClickAlbum(item)
-                            }
-                        )
-                    },
+,
                 placeholder = painterResource(id = R.drawable.ic_picture), // 默认图标
                 error = painterResource(id = R.drawable.ic_picture),
                 onLoading = {
@@ -142,7 +133,10 @@ fun AtlasCard(
                     item.isLoading.value = false
                     item.isError.value = true
                 },
-                modelEqualityDelegate = equalityDelegate
+                imageLoader = ImageLoader.Builder(context)
+                    .diskCachePolicy(CachePolicy.DISABLED) // 禁用磁盘缓存
+                    .memoryCachePolicy(CachePolicy.DISABLED) // 禁用内存缓存
+                    .build()
             )
             if (item.isLoading.value) {
                 CircularProgressIndicator(
@@ -161,11 +155,7 @@ fun AtlasCard(
                     ),
                     checked = item.isSelected.value,
                     onCheckedChange = {
-                        if (item.isSelected.value) {
-                            item.isSelected.value = false
-                        } else {
-                            item.isSelected.value = true
-                        }
+                        item.isSelected.value = it
                     },
                     modifier = Modifier
                         .size(20.dp)

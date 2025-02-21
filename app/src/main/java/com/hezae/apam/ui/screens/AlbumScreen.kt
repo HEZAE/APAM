@@ -92,6 +92,8 @@ fun PictureScreen(modifier: Modifier = Modifier, viewModel: AlbumViewModel) {
         viewModel.getAlbums(
             token = UserInfo.userToken
         ) {
+            isRefreshing = true
+            isDisplaySelection.value = false
             if (it.success) {
                 publicAtlasLists.clear()
                 privateAtlasLists.clear()
@@ -153,13 +155,12 @@ fun PictureScreen(modifier: Modifier = Modifier, viewModel: AlbumViewModel) {
     )
     {
         Column(modifier = Modifier.fillMaxSize()) {
-            //顶部
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 5.dp, vertical = 2.dp),
                 verticalAlignment = Alignment.CenterVertically
-            )
+            )//顶部
             {
                 Row(
                     modifier = Modifier
@@ -220,15 +221,16 @@ fun PictureScreen(modifier: Modifier = Modifier, viewModel: AlbumViewModel) {
                             }
                         }
                     }
-                }
-                IconButton(onClick = { getAlbums() }) {
+                }//搜索
+                IconButton(onClick = { getAlbums() })
+                {
                     Icon(
                         imageVector = ImageVector.Companion.vectorResource(id = R.drawable.ic_flash),
                         contentDescription = "refresh",
                         Modifier.size(20.dp),
                         tint = MaterialTheme.colorScheme.primary
                     )
-                }
+                }//刷新
                 IconButton(
                     onClick = {
                     },
@@ -240,18 +242,21 @@ fun PictureScreen(modifier: Modifier = Modifier, viewModel: AlbumViewModel) {
                         Modifier.size(20.dp),
                         tint = MaterialTheme.colorScheme.primary
                     )
-                }
+                }//筛选
                 TextButton(onClick = { isDisplayAddAtlasDialog.value = true })
                 {
-                     Icon(
-                            imageVector = ImageVector.Companion.vectorResource(id = R.drawable.ic_add),
-                            contentDescription = "filter",
-                            Modifier.size(17.dp),
-                            tint = MaterialTheme.colorScheme.primary   )
-                }
-                IconButton( onClick = {
+                    Icon(
+                        imageVector = ImageVector.Companion.vectorResource(id = R.drawable.ic_add),
+                        contentDescription = "filter",
+                        Modifier.size(17.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }//创建
+                IconButton(
+                    onClick = {
                         // 点击事件
-                    },)
+                    },
+                )
                 {
                     Icon(
                         imageVector = ImageVector.Companion.vectorResource(id = R.drawable.ic_tack),
@@ -259,7 +264,7 @@ fun PictureScreen(modifier: Modifier = Modifier, viewModel: AlbumViewModel) {
                         Modifier.size(20.dp),
                         tint = MaterialTheme.colorScheme.primary
                     )
-                }
+                }//拍摄
                 IconButton(onClick = { moreMenu = !moreMenu })
                 {
                     Icon(
@@ -279,11 +284,12 @@ fun PictureScreen(modifier: Modifier = Modifier, viewModel: AlbumViewModel) {
                             moreMenu = false
                         })
                     }
-                }
+                }//更多
             }
 
             PullToRefreshBox(
-                modifier = Modifier.weight(1f), isRefreshing = isRefreshing,
+                modifier = Modifier.weight(1f),
+                isRefreshing = isRefreshing,
                 state = refreshState,
                 onRefresh = { getAlbums() },
                 indicator = {
@@ -301,7 +307,8 @@ fun PictureScreen(modifier: Modifier = Modifier, viewModel: AlbumViewModel) {
                 Column(
                     Modifier
                         .fillMaxSize()
-                        .padding(2.dp)) {
+                        .padding(2.dp)
+                ) {
                     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                         Icon(
                             imageVector = ImageVector.Companion.vectorResource(id = R.drawable.ic_share),
@@ -340,7 +347,7 @@ fun PictureScreen(modifier: Modifier = Modifier, viewModel: AlbumViewModel) {
                                 Spacer(Modifier.width(4.dp))
                             }
                         }
-                    }
+                    }//私有集合标题
                     LazyVerticalGrid(
                         columns = GridCells.Fixed(4),
                         modifier = Modifier
@@ -358,9 +365,7 @@ fun PictureScreen(modifier: Modifier = Modifier, viewModel: AlbumViewModel) {
                                 viewModel = viewModel,
                                 isDisplaySelection = isDisplaySelection,
                                 onClickAlbum = {
-                                    if (isDisplaySelection.value){
-                                        item.isSelected.value = !item.isSelected.value
-                                    }else{
+                                    if (!isDisplaySelection.value) {
                                         val intent = Intent(context, PictureActivity::class.java)
                                         intent.putExtra("id", item.id)
                                         intent.putExtra("name", item.title)
@@ -395,12 +400,12 @@ fun PictureScreen(modifier: Modifier = Modifier, viewModel: AlbumViewModel) {
                                     ),
                                     onCheckedChange = {
                                         isSelectAllPublic.value = !isSelectAllPublic.value
-                                        if (isSelectAllPrivate.value) {
+                                        if (isSelectAllPublic.value) {
                                             for (item in publicAtlasLists) {
                                                 item.isSelected.value = true
                                             }
                                         } else {
-                                            for (item in privateAtlasLists) {
+                                            for (item in publicAtlasLists) {
                                                 item.isSelected.value = false
                                             }
                                         }
@@ -409,7 +414,7 @@ fun PictureScreen(modifier: Modifier = Modifier, viewModel: AlbumViewModel) {
                                 Spacer(Modifier.width(4.dp))
                             }
                         }
-                    }
+                    }//公共集合标题
                     LazyVerticalGrid(
                         columns = GridCells.Fixed(4),
                         modifier = Modifier
@@ -420,20 +425,30 @@ fun PictureScreen(modifier: Modifier = Modifier, viewModel: AlbumViewModel) {
                         verticalArrangement = Arrangement.spacedBy(5.dp),
                         horizontalArrangement = Arrangement.spacedBy(5.dp)
                     ) {
-                        items(publicAtlasLists) {
+                        items(publicAtlasLists) {item ->
                             AtlasCard(
                                 modifier = Modifier.fillMaxWidth(),
-                                item = it,
+                                item = item,
                                 isDisplaySelection = isDisplaySelection,
                                 viewModel = viewModel,
                                 onClickAlbum = {
+                                    if (isDisplaySelection.value) {
+                                        item.isSelected.value = !item.isSelected.value
+                                    } else {
+                                        val intent = Intent(context, PictureActivity::class.java)
+                                        intent.putExtra("id", item.id)
+                                        intent.putExtra("name", item.title)
+                                        intent.putExtra("albumIsPrivate", item.isPrivate)
+                                        context.startActivity(intent)
+                                    }
                                 })
                         }
                     }
 
                 }
             }
-            if (isDisplaySelection.value){
+
+            if (isDisplaySelection.value) {
                 Row(Modifier.fillMaxWidth()) {
                     TextButton(onClick = {
                         for (item in privateAtlasLists) {
@@ -467,7 +482,7 @@ fun PictureScreen(modifier: Modifier = Modifier, viewModel: AlbumViewModel) {
                             Spacer(Modifier.width(2.dp))
                             Text(text = "删除", color = MaterialTheme.colorScheme.primary)
                         }
-                    }
+                    }//删除
                     TextButton(onClick = {
                         for (item in privateAtlasLists) {
                             item.isSelected.value = false
@@ -490,9 +505,9 @@ fun PictureScreen(modifier: Modifier = Modifier, viewModel: AlbumViewModel) {
                             Spacer(Modifier.width(2.dp))
                             Text(text = "取消", color = MaterialTheme.colorScheme.primary)
                         }
-                    }
+                    }//关闭
                 }
-            }
+            }//显示操作台
         }
     }
     if (isDisplayAddAtlasDialog.value) {
