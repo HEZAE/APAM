@@ -1,14 +1,22 @@
 package com.hezae.apam.ui.screens.FindScreens
 
 import android.content.Intent
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -17,60 +25,77 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.Indicator
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
+import com.hezae.apam.R
 import com.hezae.apam.models.shemas.Topic
 import com.hezae.apam.ui.activities.NewTopicActivity
+import com.hezae.apam.ui.cards.TopicCard
 import com.hezae.apam.viewmodels.TopicViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainTopicScreen(
     modifier: Modifier,
     viewModel: TopicViewModel,
 ) {
     val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+    val refreshState = rememberPullToRefreshState()
+    val isRefreshing by remember { mutableStateOf(false) }
+    val typeOptions = mapOf(
+        "风景" to R.drawable.ic_landscape,
+        "人像" to R.drawable.ic_human,
+        "街拍" to R.drawable.ic_street_photography,
+        "婚礼" to R.drawable.ic_wedding,
+        "建筑" to R.drawable.ic_building,
+        "运动" to R.drawable.ic_sports,
+        "静物" to R.drawable.ic_still_life,
+        "旅行" to R.drawable.ic_travel,
+        "纪录片" to R.drawable.ic_documentary,
+        "艺术" to R.drawable.ic_art,
+        "夜景" to R.drawable.ic_night_view,
+        "蓝天" to R.drawable.ic_sky,
+        "抽象" to R.drawable.ic_abstract,
+        "其他" to R.drawable.ic_other
+    )
     Column(
         modifier = modifier
             .verticalScroll(rememberScrollState())
             .padding(8.dp)
     ) {
-        val typeOptions = listOf(
-            "风景",
-            "人像",
-            "街拍",
-            "婚礼",
-            "黑白摄影",
-            "自然",
-            "建筑",
-            "运动",
-            "静物",
-            "旅行",
-            "纪录片",
-            "艺术",
-            "夜景",
-            "航空摄影",
-            "抽象",
-            "其他"
-        )
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Row(
                 modifier = Modifier
@@ -79,7 +104,7 @@ fun MainTopicScreen(
             )
             {
                 BasicTextField(
-                    value = "", onValueChange = {  },
+                    value = "", onValueChange = { },
                     textStyle = TextStyle(
                         fontSize = 19.sp,
                         fontWeight = FontWeight.Normal,
@@ -130,7 +155,7 @@ fun MainTopicScreen(
                     }
                 }
             }//搜索
-            Row( horizontalArrangement = Arrangement.End) {
+            Row(horizontalArrangement = Arrangement.End) {
                 TextButton(
                     {
                         val intent = Intent(context, NewTopicActivity::class.java)
@@ -143,76 +168,144 @@ fun MainTopicScreen(
         }
         //分类选项
         Card(
-            Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.onPrimary,
-                contentColor = MaterialTheme.colorScheme.primary
-            )
-        ) {
+            Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onPrimary,contentColor = MaterialTheme.colorScheme.primary
+            )) {
             LazyVerticalGrid(
                 columns = GridCells.Fixed(5),
-                Modifier
-                    .fillMaxWidth()
-                    .height(120.dp)
-                    .padding(5.dp)
+                Modifier.fillMaxWidth().height(160.dp).padding(5.dp)
             ) {
                 items(typeOptions.size) { index ->
-                    TextButton({}) {
-                        Column(
-                            Modifier.width(IntrinsicSize.Max),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
+                    // 获取当前项的键和值
+                    val key = typeOptions.keys.elementAt(index)
+                    val iconResId = typeOptions[key] ?: R.drawable.ic_launcher_foreground
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        IconButton(onClick = { /* 处理点击事件 */ }) {
+                            // 显示图标
+                            Image(
+                                painter = painterResource(id = iconResId),
+                                contentDescription = key, // 使用键作为描述
+                                modifier = Modifier
+                                    .size(40.dp)
+                                    .padding(2.dp)
+                                    .border(
+                                        1.dp, MaterialTheme.colorScheme.primary.copy(0.2f),
+                                        CircleShape
+                                    )
+                                    .padding(2.dp)
+                                    .clip(CircleShape)
+                                    .background(MaterialTheme.colorScheme.primary.copy(0.1f))
+                                    .padding(2.dp)
 
-                            Icon(
-                                //使用固定图标
-                                imageVector = Icons.Filled.Face,
-                                contentDescription = typeOptions[index],
                             )
-                            Text(
-                                text = typeOptions[index],
-                                fontSize = 10.sp,
-                                maxLines = 1,
-                                fontWeight = FontWeight.Bold,
-                            )
+
                         }
-
+                        // 显示文本
+                        Text(
+                            text = key,
+                            fontSize = 10.sp,
+                            maxLines = 1,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary.copy(0.8f)
+                        )
                     }
                 }
             }
         }
         //热门内容
 
-        val items   = remember { mutableStateListOf<Topic>().apply {
-            add(Topic("1","1234","内容","2023-05-05","2023-05-05","1","normal",listOf("1","2"),listOf("风景"),0,0,0))
-            add(Topic("2","1234","内容","2023-05-05","2023-05-05","1","normal",listOf("1","2"),listOf("风景"),0,0,0))
-        } }
+        val items = remember {
+            mutableStateListOf<Topic>().apply {
+                add(
+                    Topic(
+                        "1",
+                        "测试标题",
+                        "测试内容内容测试内容内容测试内容内容测试内容内容测试内容内容测试内容内容测试内容内容测试内容内容测试内容内容测试内容内容测试内容内容测试内容内容测试内容内容",
+                        "2023-05-05",
+                        "2023-05-05",
+                        "1",
+                        "normal",
+                        listOf("1", "2"),
+                        listOf("风景","你好","1313"),
+                        0,
+                        0,
+                        0
+                    )
+                )
+                add(
+                    Topic(
+                        "2",
+                        "1234",
+                        "内容",
+                        "2023-05-05",
+                        "2023-05-05",
+                        "1",
+                        "normal",
+                        listOf("1", "2"),
+                        listOf("风景"),
+                        0,
+                        0,
+                        0
+                    )
+                )
+                add(
+                    Topic(
+                        "2",
+                        "1234",
+                        "内容",
+                        "2023-05-05",
+                        "2023-05-05",
+                        "1",
+                        "normal",
+                        listOf("1", "2"),
+                        listOf("风景"),
+                        0,
+                        0,
+                        0
+                    )
+                )
+                add(
+                    Topic(
+                        "2",
+                        "1234",
+                        "内容",
+                        "2023-05-05",
+                        "2023-05-05",
+                        "1",
+                        "normal",
+                        listOf("1", "2"),
+                        listOf("风景"),
+                        0,
+                        0,
+                        0
+                    )
+                )
+            }
+        }
 
-        LazyColumn(Modifier.fillMaxWidth().weight(1f)) {
-            items(items) { item ->
-                TopicCard(item,viewModel)
+        PullToRefreshBox(modifier = Modifier.fillMaxWidth().weight(1f),
+            isRefreshing = isRefreshing,
+            state = refreshState,
+            onRefresh = {  },
+            indicator = {
+                Indicator(
+                    modifier = Modifier.align(Alignment.TopCenter),
+                    isRefreshing = isRefreshing,
+                    state = refreshState,
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    threshold = 60.dp
+                )
+            }
+        ) {
+            LazyColumn(
+                Modifier.fillMaxSize().padding(vertical = 5.dp)) {
+                items(items) { item ->
+                    TopicCard(Modifier.fillMaxWidth().height(150.dp).padding(vertical = 2.dp),item, viewModel)
+                }
             }
         }
     }
 }
 
-@Composable
-fun TopicCard(item: Topic, viewModel: TopicViewModel){
-    Card(
-        Modifier
-            .fillMaxWidth()
-            .padding(5.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.onPrimary,
-            contentColor = MaterialTheme.colorScheme.primary
-        )
-    ) {
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .padding(5.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(text = item.title)
-        }
-
-    }
-}

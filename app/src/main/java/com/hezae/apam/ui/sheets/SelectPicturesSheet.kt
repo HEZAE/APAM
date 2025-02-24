@@ -174,7 +174,7 @@ fun SelectPicturesSheet(
             isDisplay.value=false
         },
         sheetState = sheetState,
-        containerColor = MaterialTheme.colorScheme.primary.copy(0.5f),
+        containerColor = MaterialTheme.colorScheme.primary.copy(0.8f),
         contentColor = MaterialTheme.colorScheme.onPrimary,
         dragHandle = {
             Row(Modifier.fillMaxWidth().padding(4.dp),Arrangement.Center){
@@ -237,6 +237,8 @@ fun SelectPicturesSheet(
                                    Row(Modifier.weight(1f),Arrangement.End){
                                        TextButton(onClick = {
                                            switchScreen=false
+                                           pictureViewModel.album.value.id = ""
+                                           pictureViewModel.album.value.name = ""
                                            title = "请选择相册"
                                        }) {
                                            Text(text = "返回", color = MaterialTheme.colorScheme.primary)
@@ -286,8 +288,8 @@ fun SelectPicturesSheet(
                                                onClickAlbum = {
                                                    switchScreen = true
                                                    pictureViewModel.album.value.id = it.id
-                                                   title = it.title
                                                    pictureViewModel.album.value.name = it.title
+                                                   title = it.title
                                                    getPicture()
                                                })
 

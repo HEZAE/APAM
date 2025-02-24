@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder
 import com.hezae.apam.tools.apis.AlbumApi
 import com.hezae.apam.tools.apis.MinioApi
 import com.hezae.apam.tools.apis.PictureApi
+import com.hezae.apam.tools.apis.TopicApi
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -44,5 +45,11 @@ object RetrofitInstance {
             .build()
             .create(MinioApi::class.java)
     }
-
+    val topicApi:TopicApi by  lazy {
+        Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create(gson))
+            .build()
+            .create(TopicApi::class.java)
+    }
 }

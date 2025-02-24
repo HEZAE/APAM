@@ -155,6 +155,11 @@ fun RePictureScreen(modifier: Modifier, item: PictureItemEx, viewModel: PictureV
                                     onFinished = {
                                         if (it.success) {
                                             onDismissRequest()
+                                            Toast.makeText(
+                                                context,
+                                                "删除成功",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
                                         }else{
                                             Toast.makeText(
                                                 context,

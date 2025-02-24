@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -225,7 +226,6 @@ fun NewPictureDialog(
                         }
                         TextButton({
                             isLoading = true
-                            coroutineScope.launch {
                                 //生成照片的UUID
                                 val pictureId = UUID.randomUUID().toString()
                                 var presignedUrl = ""
@@ -270,38 +270,33 @@ fun NewPictureDialog(
                                                     isDisplay.value = false
                                                 }
                                             } else {
-                                                Toast.makeText(context, it.msg, Toast.LENGTH_SHORT)
-                                                    .show()
+                                                Toast.makeText(context, it.msg, Toast.LENGTH_SHORT).show()
+                                                isLoading = false
                                             }
-                                            isLoading = false
                                         }
                                     } else {
                                         Toast.makeText(context, it.msg, Toast.LENGTH_SHORT).show()
+                                        isLoading = false
                                     }
-                                    isLoading = false
                                 }
-                            }
+
                         }, enabled = !isLoading) {
                             Text("确定", color = MaterialTheme.colorScheme.primary)
                         }
                     }
                 }
-
                 //进度条
                 if (isLoading) {
                     Box(
-                        Modifier
-                            .matchParentSize()
-                            .background(color = Color.Gray.copy(alpha = 0.5f))
+                        Modifier .matchParentSize() .background(color = Color.Gray.copy(alpha = 0.5f))
                     ) {
-                        CircularProgressIndicator(Modifier.align(Alignment.Center))
+                        CircularProgressIndicator(Modifier.size(48.dp).align(Alignment.Center))
                     }
                 }
             }
+
         }
     }
-
-
 }
 
 fun uriToFile(context: Context, uri: Uri): FileInfo {

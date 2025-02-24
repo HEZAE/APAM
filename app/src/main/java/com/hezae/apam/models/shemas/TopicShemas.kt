@@ -1,6 +1,6 @@
 package com.hezae.apam.models.shemas
 
-import java.util.*
+import com.google.gson.annotations.SerializedName
 
 data class Topic(
     val id: String,              // 主键UUID
@@ -16,3 +16,11 @@ data class Topic(
     val collects: Int = 0,       // 收藏数
     val comments: Int = 0        // 评论数
 )
+class CreatedTopicModel(
+    val title: String,// 标题
+    val content: String,// 内容
+    val tags: List<Int> = emptyList(),// 标签
+    val pictures: List<String> = emptyList(),// 图片
+    @SerializedName("created_at")
+    val createdAt:String
+    )

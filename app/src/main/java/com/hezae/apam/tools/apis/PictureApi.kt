@@ -26,7 +26,7 @@ interface PictureApi {
     @GET("picture/{picture_id}")
     suspend fun getPicture(
         @Header("Authorization") token: String,
-        @Path("picture_id") pictureId: String
+        @Query("picture_id") pictureId: String
     ): Response<ApiResult<Picture>>
 
     //删除相片
@@ -45,10 +45,10 @@ interface PictureApi {
     ): Response<ApiResult<String>>
 
     //根据相册ID获取相片列表
-    @GET("picture/album/{album_id}")
+    @GET("picture/album")
     suspend fun getPicturesByAlbum(
         @Header("Authorization") token: String,
-        @Path("album_id") albumId: String
+        @Query("album_id") albumId: String
     ): Response<ApiResult<List<Picture>>>
 
     //更新相片

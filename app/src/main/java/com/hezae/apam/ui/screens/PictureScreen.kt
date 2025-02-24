@@ -330,9 +330,17 @@ fun PictureScreen(innerPadding: PaddingValues, viewModel: PictureViewModel) {
                                                     selectedCount.intValue++
                                                 }
                                             } else {
-                                                selectedItem.value = null
-                                                selectedItem.value = item
-                                                isSelected.value = true
+                                                if(item.isLoading.value||item.file==null){
+                                                    Toast.makeText(
+                                                        context,
+                                                        "图片正在加载中，请稍后...",
+                                                        Toast.LENGTH_SHORT
+                                                    ).show()
+                                                }else{
+                                                    selectedItem.value = null
+                                                    selectedItem.value = item
+                                                    isSelected.value = true
+                                                }
                                             }
                                         },
                                         onLongClick = {
