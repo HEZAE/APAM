@@ -1,10 +1,12 @@
 package com.hezae.apam.ui.screens.FindScreens
 
 import android.content.Intent
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -24,6 +26,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -43,15 +46,18 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.Indicator
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -59,9 +65,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.google.gson.Gson
 import com.hezae.apam.R
 import com.hezae.apam.models.shemas.Topic
+import com.hezae.apam.tools.UserInfo
 import com.hezae.apam.ui.activities.NewTopicActivity
+import com.hezae.apam.ui.activities.TopicActivity
 import com.hezae.apam.ui.cards.TopicCard
 import com.hezae.apam.viewmodels.TopicViewModel
 
@@ -74,7 +83,7 @@ fun MainTopicScreen(
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     val refreshState = rememberPullToRefreshState()
-    val isRefreshing by remember { mutableStateOf(false) }
+    var isRefreshing by remember { mutableStateOf(false) }
     val typeOptions = mapOf(
         "风景" to R.drawable.ic_landscape,
         "人像" to R.drawable.ic_human,
@@ -91,6 +100,42 @@ fun MainTopicScreen(
         "抽象" to R.drawable.ic_abstract,
         "其他" to R.drawable.ic_other
     )
+    val topicList = remember { mutableStateListOf<Topic>() }
+    fun getTypeTopic(type: Int){
+        isRefreshing = true
+        viewModel.getTypeTopic(
+            token = UserInfo.userToken,
+            type = type,
+            onFinished = {
+                if (it.success){
+                    topicList.clear()
+                    if (it.data!==null){
+                        topicList.addAll(it.data)
+                    }
+                }else{
+                    Toast.makeText(context, "获取失败：" + it.msg, Toast.LENGTH_SHORT).show()
+                }
+                isRefreshing = false
+            }
+        )
+    }
+    fun getRandomTopic(){
+        isRefreshing = true
+        viewModel.getRandomTopic(
+            token = UserInfo.userToken,
+            onFinished = {
+                if (it.success){
+                    topicList.clear()
+                    if (it.data!==null){
+                            topicList.addAll(it.data)
+                    }
+                }else{
+                    Toast.makeText(context, "获取失败：" + it.msg, Toast.LENGTH_SHORT).show()
+                }
+                isRefreshing = false
+            }
+        )
+    }
     Column(
         modifier = modifier
             .verticalScroll(rememberScrollState())
@@ -172,7 +217,7 @@ fun MainTopicScreen(
             )) {
             LazyVerticalGrid(
                 columns = GridCells.Fixed(5),
-                Modifier.fillMaxWidth().height(160.dp).padding(5.dp)
+                Modifier.fillMaxWidth().height(80.dp).padding(5.dp)
             ) {
                 items(typeOptions.size) { index ->
                     // 获取当前项的键和值
@@ -181,7 +226,9 @@ fun MainTopicScreen(
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        IconButton(onClick = { /* 处理点击事件 */ }) {
+                        IconButton(onClick = {
+                            getTypeTopic(index)
+                        }) {
                             // 显示图标
                             Image(
                                 painter = painterResource(id = iconResId),
@@ -215,79 +262,10 @@ fun MainTopicScreen(
         }
         //热门内容
 
-        val items = remember {
-            mutableStateListOf<Topic>().apply {
-                add(
-                    Topic(
-                        "1",
-                        "测试标题",
-                        "测试内容内容测试内容内容测试内容内容测试内容内容测试内容内容测试内容内容测试内容内容测试内容内容测试内容内容测试内容内容测试内容内容测试内容内容测试内容内容",
-                        "2023-05-05",
-                        "2023-05-05",
-                        "1",
-                        "normal",
-                        listOf("1", "2"),
-                        listOf("风景","你好","1313"),
-                        0,
-                        0,
-                        0
-                    )
-                )
-                add(
-                    Topic(
-                        "2",
-                        "1234",
-                        "内容",
-                        "2023-05-05",
-                        "2023-05-05",
-                        "1",
-                        "normal",
-                        listOf("1", "2"),
-                        listOf("风景"),
-                        0,
-                        0,
-                        0
-                    )
-                )
-                add(
-                    Topic(
-                        "2",
-                        "1234",
-                        "内容",
-                        "2023-05-05",
-                        "2023-05-05",
-                        "1",
-                        "normal",
-                        listOf("1", "2"),
-                        listOf("风景"),
-                        0,
-                        0,
-                        0
-                    )
-                )
-                add(
-                    Topic(
-                        "2",
-                        "1234",
-                        "内容",
-                        "2023-05-05",
-                        "2023-05-05",
-                        "1",
-                        "normal",
-                        listOf("1", "2"),
-                        listOf("风景"),
-                        0,
-                        0,
-                        0
-                    )
-                )
-            }
-        }
-
         PullToRefreshBox(modifier = Modifier.fillMaxWidth().weight(1f),
             isRefreshing = isRefreshing,
             state = refreshState,
-            onRefresh = {  },
+            onRefresh = { getRandomTopic()  },
             indicator = {
                 Indicator(
                     modifier = Modifier.align(Alignment.TopCenter),
@@ -301,8 +279,13 @@ fun MainTopicScreen(
         ) {
             LazyColumn(
                 Modifier.fillMaxSize().padding(vertical = 5.dp)) {
-                items(items) { item ->
-                    TopicCard(Modifier.fillMaxWidth().height(150.dp).padding(vertical = 2.dp),item, viewModel)
+                items(topicList) { item ->
+                    TopicCard(Modifier.fillMaxWidth().height(150.dp).padding(vertical = 2.dp),item, viewModel){
+                        val intent = Intent(context, TopicActivity::class.java)
+                        intent.putExtra("topic", Gson().toJson(item))
+                        intent.putExtra("username",viewModel.userNameCache[item.userId])
+                        context.startActivity(intent)
+                    }
                 }
             }
         }

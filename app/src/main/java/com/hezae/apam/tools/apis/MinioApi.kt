@@ -33,7 +33,15 @@ interface MinioApi
     suspend fun getDownloadUrl(
         @Header("Authorization") token: String,
         @Query("album_id") albumId: String,
-        @Query("picture_id") pictureId: String
+        @Query("picture_id") pictureId: String,
+    ): Response<ApiResult<String>>
+
+    @GET("minio/presigned_url/id/download")
+    suspend fun getDownloadUrlById(
+        @Header("Authorization") token: String,
+        @Query("album_id") albumId: String,
+        @Query("picture_id") pictureId: String,
+        @Query("user_id") userId: String
     ): Response<ApiResult<String>>
 
     //上传文件

@@ -89,4 +89,10 @@ dependencies {
     implementation (libs.androidx.fragment.ktx)
     implementation(libs.kotlinx.datetime)
    // implementation(libs.rabbitmq.kotlin)
+
+    /*************************MQTT依赖包*************************/
+    implementation(libs.org.eclipse.paho.mqttv5.client)
+    implementation(libs.org.eclipse.paho.android.service)
+    /*************************MQTT依赖包*************************/
+
 }

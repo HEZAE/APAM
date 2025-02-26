@@ -23,7 +23,7 @@ interface PictureApi {
     ): Response<ApiResult<String>>
 
     //根据相片ID获取相片信息
-    @GET("picture/{picture_id}")
+    @GET("picture")
     suspend fun getPicture(
         @Header("Authorization") token: String,
         @Query("picture_id") pictureId: String

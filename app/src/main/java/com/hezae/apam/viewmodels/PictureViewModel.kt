@@ -24,6 +24,7 @@ class PictureViewModel : ViewModel() {
     val pictureApi = RetrofitInstance.pictureApi
     val minioApi = RetrofitInstance.minioApi
 
+
     //根据图片id获取图片
     fun getPicture(
         token: String,
@@ -110,25 +111,22 @@ class PictureViewModel : ViewModel() {
     }
 
     //获取预签名下载地址
-    fun getPresignedDownloadUrl( token: String,albumId: String,pictureId:String,
+    fun getPresignedDownloadUrl( token: String,albumId: String,pictureId:String,userId:String?,
         onFinished: (ApiResult<String>) -> Unit) {
         try {
             viewModelScope.launch {
-                if (album.value.id.isEmpty()) {
-                    onFinished(ApiResult(false, 500, "请选择相册"))
-                    return@launch
+                if (userId!=null){
+                    parseResponse( {minioApi.getDownloadUrlById(token,albumId = albumId, pictureId = pictureId,userId = userId)},onFinished)
+                }else{
+                    parseResponse( {minioApi.getDownloadUrl(token,albumId = albumId, pictureId)}, onFinished )
                 }
-                parseResponse(
-                    {minioApi.getDownloadUrl(token,albumId = albumId, pictureId = pictureId,)},
-                    onFinished
-                )
+
             }
         }catch (e: Exception){
             Log.e("PictureViewModel", "error:${e.message}")
             onFinished(ApiResult(false, 500, e.message.toString()))
         }
     }
-
     //上传文件
     fun uploadFile(
         presignedURL: String,

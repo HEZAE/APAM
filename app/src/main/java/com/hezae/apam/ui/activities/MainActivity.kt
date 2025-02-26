@@ -16,6 +16,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.hezae.apam.datas.Screen
+import com.hezae.apam.tools.MQTTManager
 import com.hezae.apam.tools.ManagerTheme
 import com.hezae.apam.ui.bottomBars.BottomBar
 import com.hezae.apam.ui.screens.FindScreen
@@ -34,6 +35,8 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        MQTTManager.init(this)
+        MQTTManager.connect()
         val items = listOf(Screen.Home, Screen.Picture, Screen.Find, Screen.User)
         setContent {
             val selectedTheme = ManagerTheme.currentTheme
@@ -86,6 +89,7 @@ class MainActivity : ComponentActivity() {
                     ) { innerPadding ->
                         HorizontalPager(
                             state = pagerState,
+                            userScrollEnabled = false,
                             modifier = Modifier
                                 .fillMaxSize()
                                 .padding(innerPadding),

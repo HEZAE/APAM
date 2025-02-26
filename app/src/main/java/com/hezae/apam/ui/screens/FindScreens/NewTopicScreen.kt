@@ -26,6 +26,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -37,6 +38,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -118,14 +120,19 @@ fun NewTopicScreen(modifier: Modifier, viewModel: TopicViewModel) {
                             if (it.length <= 20&& it.isNotEmpty()){
                                 title = it
                             }
-                        }, label = { Text("标题",) }, modifier = Modifier.fillMaxWidth().padding(4.dp))
+                        }, label = { Text("标题",) }, modifier = Modifier.fillMaxWidth().padding(4.dp),
+                                colors = TextFieldDefaults.colors(
+                                focusedTextColor = MaterialTheme.colorScheme.primary.copy(0.95f),
+                        ))
                         OutlinedTextField(value = content, maxLines = 5, onValueChange = {
                             if (it.length <= 200){
                                 content = it
                             }else{
                                 Toast.makeText(context, "内容不能超过200个字符", Toast.LENGTH_SHORT).show()
                             }
-                        }, label = { Text("内容",) }, modifier = Modifier.fillMaxWidth().padding(4.dp))
+                        }, colors = TextFieldDefaults.colors(
+                            focusedTextColor = MaterialTheme.colorScheme.primary.copy(0.95f),
+                        ),label = { Text("内容",) }, modifier = Modifier.fillMaxWidth().padding(4.dp))
                         Card(Modifier.fillMaxWidth().padding(4.dp), border = CardDefaults.outlinedCardBorder()){
                             Text(text = "请选中类型", modifier = Modifier.padding(4.dp), color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold, fontSize = 16.sp)
                             LazyVerticalGrid(columns = GridCells.Fixed(5), modifier = Modifier.padding(4.dp).height(100.dp)) {

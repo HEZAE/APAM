@@ -70,7 +70,7 @@ class AlbumViewModel : ViewModel() {
                     return@launch
                 }
                 parseResponse(
-                    {minioApi.getDownloadUrl(token,albumId =albumId, pictureId = pictureId,)},
+                    {minioApi.getDownloadUrl(token,albumId =albumId, pictureId = pictureId)},
                     onFinished
                 )
             }

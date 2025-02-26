@@ -59,6 +59,7 @@ import com.hezae.apam.R
 import com.hezae.apam.models.AtlasItem
 import com.hezae.apam.models.shemas.Album
 import com.hezae.apam.tools.UserInfo
+import com.hezae.apam.ui.activities.CameraActivity
 import com.hezae.apam.ui.activities.PictureActivity
 import com.hezae.apam.ui.cards.AtlasCard
 import com.hezae.apam.ui.dialogs.NewAlbumDialog
@@ -254,7 +255,9 @@ fun PictureScreen(modifier: Modifier = Modifier, viewModel: AlbumViewModel) {
                 }//创建
                 IconButton(
                     onClick = {
-                        // 点击事件
+                        //跳转到拍摄界面
+                        val intent = Intent(context, CameraActivity::class.java)
+                        context.startActivity(intent)
                     },
                 )
                 {

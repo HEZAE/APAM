@@ -63,6 +63,7 @@ fun PictureCard(
                 token = "Bearer ${UserInfo.userToken}",
                 albumId = item.albumId,
                 pictureId = item.id,
+                userId = item.userId,
                 onFinished = {
                     url = if (it.success) {
                         it.data!!

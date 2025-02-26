@@ -60,6 +60,7 @@ import kotlinx.coroutines.launch
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.widget.Toast
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.height
 import coil.compose.LocalImageLoader
@@ -84,26 +85,27 @@ fun PictureCardEx(
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     var url by remember { mutableStateOf<String?>(null) }
-    var isLoading by remember { mutableStateOf(item.file==null) }
-
-    LaunchedEffect(item.id) {
+    LaunchedEffect(Unit) {
+        item.isLoading.value = true
         coroutineScope.launch {
             // 请求图像下载 URL
             viewModel.getPresignedDownloadUrl(
                 token = "Bearer ${UserInfo.userToken}",
                 albumId = item.albumId,
                 pictureId = item.id,
+                userId = item.userId,
                 onFinished = { result ->
                     if (result.success) {
                         url = result.data
                         coroutineScope.launch {
                             withContext(Dispatchers.IO){
                                 downloadAndSaveImageToMemory(url !!, item)
-                                isLoading = false
+                                item.isLoading.value = false
                             }
                         }
                     } else {
-                        isLoading = false
+                        item.isError.value = true
+                        item.isLoading.value = false
                     }
                 }
             )
@@ -121,11 +123,11 @@ fun PictureCardEx(
                 onTap = { onClick() }
             )
         }) {
-            when {
-                isLoading -> {
-                    CircularProgressIndicator(modifier = Modifier.padding(18.dp).fillMaxWidth().aspectRatio(1f).align(Alignment.Center))
-                }
-                item.file != null -> {
+            if(item.isLoading.value){
+                CircularProgressIndicator(modifier = Modifier.padding(18.dp).fillMaxWidth().aspectRatio(1f).align(Alignment.Center))
+
+            }else{
+                if (item.file!= null){
                     Image(
                         modifier = Modifier.fillMaxWidth().aspectRatio(1f).clip(RoundedCornerShape(2.dp)),
                         contentDescription = null,
@@ -133,14 +135,25 @@ fun PictureCardEx(
                         painter = rememberAsyncImagePainter(
                             model = item.file,
                             imageLoader =ImageLoader.Builder(context)
-                            .diskCachePolicy(CachePolicy.DISABLED) // 禁用磁盘缓存
-                            .memoryCachePolicy(CachePolicy.DISABLED) // 禁用内存缓存
-                            .build()
+                                .diskCachePolicy(CachePolicy.DISABLED) // 禁用磁盘缓存
+                                .memoryCachePolicy(CachePolicy.DISABLED) // 禁用内存缓存
+                                .build()
                         ))
                 }
-                else -> {
-                    // 如果没有本地文件，使用占位符
-                    CircularProgressIndicator(modifier = Modifier.padding(6.dp).fillMaxWidth().aspectRatio(1f).align(Alignment.Center))
+                else if(item.isError.value){
+                        Image(
+                            modifier = Modifier.fillMaxWidth().aspectRatio(1f).clip(RoundedCornerShape(2.dp)),
+                            contentDescription = null,
+                            contentScale = ContentScale.Crop,
+                            painter = painterResource(id = R.drawable.ic_error_picture)
+                        )
+                }else{
+                    Image(
+                        modifier = Modifier.fillMaxWidth().aspectRatio(1f).clip(RoundedCornerShape(2.dp)),
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        painter = painterResource(id = R.drawable.ic_picture)
+                    )
                 }
             }
         }

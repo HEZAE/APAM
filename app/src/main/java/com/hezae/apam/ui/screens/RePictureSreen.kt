@@ -78,6 +78,7 @@ fun RePictureScreen(modifier: Modifier, item: PictureItemEx, viewModel: PictureV
                 token = "Bearer ${UserInfo.userToken}",
                 albumId = item.albumId,
                 pictureId = item.id,
+                userId = item.userId,
                 onFinished = {
                     Log.e("PictureCard", item.id)
                     url = if (it.success) {
