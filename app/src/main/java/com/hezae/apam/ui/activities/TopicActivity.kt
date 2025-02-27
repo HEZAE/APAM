@@ -5,7 +5,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -23,6 +22,7 @@ class TopicActivity : ComponentActivity() {
         setContent {
             val item =  Gson().fromJson(intent.getStringExtra("topic") ?: "", Topic::class.java)
             val username  = intent.getStringExtra("username") ?: ""
+            val tags = Gson().fromJson(intent.getStringExtra("tags") ?: "", Array<Int>::class.java).toList()
             if(item!=null){
                 val viewModel: TopicViewModel = viewModel()
                 
@@ -33,6 +33,7 @@ class TopicActivity : ComponentActivity() {
                             innerPadding = innerPadding,
                             username = username,
                             item = item,
+                            tags = tags,
                             viewModel = viewModel, viewModel(),viewModel()
                         )
                     }

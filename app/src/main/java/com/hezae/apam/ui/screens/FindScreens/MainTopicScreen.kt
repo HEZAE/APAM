@@ -136,6 +136,10 @@ fun MainTopicScreen(
             }
         )
     }
+
+    LaunchedEffect(Unit) {
+        getRandomTopic()
+    }
     Column(
         modifier = modifier
             .verticalScroll(rememberScrollState())
@@ -284,6 +288,7 @@ fun MainTopicScreen(
                         val intent = Intent(context, TopicActivity::class.java)
                         intent.putExtra("topic", Gson().toJson(item))
                         intent.putExtra("username",viewModel.userNameCache[item.userId])
+                        intent.putExtra("tags", Gson().toJson(item.tags))
                         context.startActivity(intent)
                     }
                 }

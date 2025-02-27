@@ -31,11 +31,12 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import com.hezae.apam.R
+import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CameraDialog(
-    imageUri: Uri?,
+    image: File?,
     onSave: () -> Unit,
     onShare: () -> Unit,
     onCancel: () -> Unit
@@ -49,7 +50,7 @@ fun CameraDialog(
             }
             Box(Modifier.fillMaxWidth().weight(1f).horizontalScroll(rememberScrollState())){
                 Row(Modifier.fillMaxHeight().padding(4.dp)){
-                    if(imageUri==null){
+                    if(image==null){
                         Image(
                             painter  = rememberAsyncImagePainter(R.drawable.ic_landscape),
                             contentDescription = "Captured Image",
@@ -58,7 +59,7 @@ fun CameraDialog(
                         )
                     }else{
                         AsyncImage(
-                            model = imageUri,
+                            model = image,
                             contentDescription = "Captured Image",
                             contentScale = ContentScale.FillWidth,
                             modifier = Modifier.fillMaxWidth()

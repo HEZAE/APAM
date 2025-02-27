@@ -26,21 +26,10 @@ class SettingsActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            var selectedTheme  :Style by remember {  mutableStateOf( ManagerTheme.currentTheme)}
-            APAMTheme(style = selectedTheme) {
-                Scaffold(
-                    topBar = {
-                        SettingsTopBar("设置", onBackClick = {
-                            this.finish()
-                        }, modifier = Modifier.padding(4.dp))
-                    },
-                    modifier = Modifier.fillMaxSize()
+            APAMTheme(ManagerTheme.currentTheme) {
+                Scaffold(Modifier.fillMaxSize()
                 ) { innerPadding ->
-                    SettingsScreen(modifier = Modifier.padding(innerPadding).fillMaxSize(), selectedTheme = selectedTheme) {
-                        newTheme:Style ->
-                        selectedTheme = newTheme // 更新主题状态
-                        ManagerTheme.saveThemePreference(this, newTheme) // 保存主题选择
-                    }
+                    SettingsScreen(modifier = Modifier.padding(innerPadding).fillMaxSize())
                 }
             }
         }

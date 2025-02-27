@@ -68,6 +68,7 @@ dependencies {
     implementation(libs.google.accompanist.pager)
     implementation( libs.coil.compose)
     implementation(libs.androidx.documentfile)
+    implementation(libs.androidx.tools.core)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -80,6 +81,8 @@ dependencies {
     implementation (libs.androidx.camera.camera2)
     implementation (libs.androidx.camera.lifecycle)
     implementation (libs.androidx.camera.view)
+    implementation( libs.guava) // 使用合适的版本
+
 
     //Retrofit 和 Coroutine 的依赖
     implementation (libs.retrofit)

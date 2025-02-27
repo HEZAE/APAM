@@ -1,4 +1,4 @@
-package com.hezae.apam.ui.others
+package com.hezae.apam.ui.selectors
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Box
@@ -36,8 +36,9 @@ fun ThemeSelector(modifier: Modifier,selectedTheme: Style, icon: ImageVector = I
         modifier = modifier,
         text = "${stringResource(R.string.select_theme)} ",
         onClick = { expanded = !expanded },
+        isDisPlayContent = true,
         icon = icon,
-    ) {}
+    )
     Box(modifier = Modifier.fillMaxWidth()) {
         DropdownMenu(
             expanded = expanded,

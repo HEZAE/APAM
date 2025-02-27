@@ -2,6 +2,7 @@ package com.hezae.apam.tools
 
 import android.content.Context
 import android.util.Log
+import androidx.compose.runtime.mutableStateOf
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -25,9 +26,11 @@ object MQTTManager : MqttCallback {
     private lateinit var mqttConnectionOptions: MqttConnectionOptions
     private var isInitialized = false
     private val SERVER_URI = "tcp://192.168.20.27:1883"
-    private val CLIENT_ID = "Android_"
+    private val CLIENT_ID = UserInfo.username
     private val USERNAME = "admin"
     private val PASSWORD = "public"
+
+    var pictureByteArray = mutableStateOf<ByteArray?>(null)
 
     fun init(context: Context){
         mqttConnectionOptions = MqttConnectionOptionsBuilder()
@@ -58,7 +61,7 @@ object MQTTManager : MqttCallback {
         if (isInitialized) {
             mqttClient?.connect(mqttConnectionOptions, null, object : MqttActionListener {
                 override fun onSuccess(asyncActionToken: IMqttToken?) {
-                    subscribeTopic("UserEvent")
+                    subscribeTopic("UserEventIn")
                     Log.d("MQTT", "连接成功")
                 }
 
@@ -110,24 +113,30 @@ object MQTTManager : MqttCallback {
     }
 
     //发送消息
-    fun publishMessage(topic: String, message: String) {
-        if (isInitialized && mqttClient!!.isConnected) {
-            val mqttMessage = MqttMessage(message.toByteArray())
-            mqttClient!!.publish(topic, mqttMessage, null, object : MqttActionListener {
-                override fun onSuccess(asyncActionToken: IMqttToken?) {
-                    Log.d("MQTT", "消息发送成功: $topic")
-                }
-                override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
-                    Log.e("MQTT", "消息发送失败: $topic,${exception?.message}")
-                }
-            })
+    fun publishMessage(topic: String, message:ByteArray) {
+        if (isInitialized) {
+           if(mqttClient!=null){
+               if (mqttClient!!.isConnected){
+                   val mqttMessage = MqttMessage(message)
+                   mqttClient!!.publish(topic, mqttMessage, null, object : MqttActionListener {
+                       override fun onSuccess(asyncActionToken: IMqttToken?) {
+                           Log.d("MQTT", "消息发送成功: $topic")
+                       }
+
+                       override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
+                           Log.e("MQTT", "消息发送失败: $topic, ${exception?.message}")
+                       }
+                   })
+               }
+           }
         }
     }
 
     // 消息到达
     override fun messageArrived(topic: String?, message: MqttMessage?) {
-        Log.d("MQTT", "消息到达: $topic")
-        Log.d("MQTT", "消息内容: ${message?.payload?.toString(Charsets.UTF_8)}")
+       if (topic == "UserEventIn"){
+           pictureByteArray.value = message?.payload
+       }
     }
 
     override fun disconnected(disconnectResponse: MqttDisconnectResponse?) {
