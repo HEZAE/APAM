@@ -3,6 +3,7 @@ package com.hezae.apam.tools
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.hezae.apam.tools.apis.AlbumApi
+import com.hezae.apam.tools.apis.CommentApi
 import com.hezae.apam.tools.apis.MinioApi
 import com.hezae.apam.tools.apis.PictureApi
 import com.hezae.apam.tools.apis.TopicApi
@@ -51,5 +52,13 @@ object RetrofitInstance {
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
             .create(TopicApi::class.java)
+    }
+
+    val commentApi:CommentApi by lazy {
+        Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create(gson))
+            .build()
+            .create(CommentApi::class.java)
     }
 }

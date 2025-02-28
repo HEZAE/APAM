@@ -7,6 +7,8 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hezae.apam.datas.ApiResult
+import com.hezae.apam.models.shemas.Comment
+import com.hezae.apam.models.shemas.CreateComment
 import com.hezae.apam.models.shemas.CreatedTopicModel
 import com.hezae.apam.models.shemas.Topic
 import com.hezae.apam.tools.RetrofitInstance
@@ -17,6 +19,7 @@ import java.net.SocketTimeoutException
 class TopicViewModel: ViewModel()
 {
     private val topicApi= RetrofitInstance.topicApi
+    private val commentApi  = RetrofitInstance.commentApi
     val typeOptions = listOf(
         "风景",
         "人像",
@@ -78,6 +81,40 @@ class TopicViewModel: ViewModel()
     ){
         viewModelScope.launch {
             parseResponse({topicApi.getTypeTopic("bearer $token",type)}, onFinished)
+        }
+    }
+
+
+    //创建评论
+    fun createComment(
+        token:String,
+        createComment: CreateComment,
+        onFinished: (ApiResult<String>) -> Unit
+    ){
+        viewModelScope.launch {
+            parseResponse({commentApi.createComment("bearer $token",createComment)}, onFinished)
+        }
+    }
+
+    //根据话题id获取评论
+    fun getTopComments(
+        token:String,
+        topicId:String,
+        onFinished: (ApiResult<List<Comment>>) -> Unit
+    ){
+        viewModelScope.launch {
+            parseResponse({commentApi.getTopComments("bearer $token",topicId)}, onFinished)
+        }
+    }
+
+    //根据评论id获取评论
+    fun getComment(
+        token:String,
+        commentId:String,
+        onFinished: (ApiResult<Comment>) -> Unit
+    ){
+        viewModelScope.launch {
+            parseResponse({commentApi.getComment("bearer $token",commentId)}, onFinished)
         }
     }
 

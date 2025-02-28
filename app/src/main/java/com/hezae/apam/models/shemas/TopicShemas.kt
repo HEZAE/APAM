@@ -48,29 +48,22 @@ class TagsTypeAdapter : JsonSerializer<List<Int>>, JsonDeserializer<List<Int>> {
     }
 }
 
-
 // 自定义 TypeAdapter 来处理 pictures 字段的序列化和反序列化
 class PicturesTypeAdapter : JsonSerializer<List<String>>, JsonDeserializer<List<String>> {
     override fun serialize(src: List<String>, typeOfSrc: Type, context: JsonSerializationContext): JsonElement {
-        // 将 List<String> 序列化成 JSON 字符串
-        return JsonPrimitive(src.toString())  // 转换为 JSON 字符串格式
+        return JsonPrimitive(src.toString())
     }
-
     override fun deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext): List<String> {
         Log.d("PicturesTypeAdapter", "deserialize: $json")
         val results = json.asString
-        if (results.equals("[]" )){
-            return emptyList()
+        return if (results.equals("[]" )){ emptyList()
         }else{
-            return results.removeSurrounding("[", "]") // 移除两端的方括号
+            results.removeSurrounding("[", "]") // 移除两端的方括号
                 .split(",") // 按逗号分割
                 .map { it.trim().removeSurrounding("\"") }  // 移除每个元素的双引号
         }
     }
 }
-
-
-
 
 class CreatedTopicModel(
     val title: String,// 标题

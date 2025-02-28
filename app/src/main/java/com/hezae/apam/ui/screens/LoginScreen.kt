@@ -194,6 +194,7 @@ fun LoginScreen(modifier: Modifier, loginViewModel: LoginViewModel, innerPadding
                                                context.getSharedPreferences("user_info", Context.MODE_PRIVATE)
                                            val editor = sharedPreferences.edit()
                                            editor.putString("token", result.data)
+                                           editor.putString("username", username.text)
                                            editor.apply()
                                            UserInfo.userToken = result.data!!
                                            //跳转到主界面

@@ -124,8 +124,7 @@ fun PictureCardEx(
             )
         }) {
             if(item.isLoading.value){
-                CircularProgressIndicator(modifier = Modifier.padding(18.dp).fillMaxWidth().aspectRatio(1f).align(Alignment.Center))
-
+                CircularProgressIndicator(modifier = Modifier.padding(32.dp).fillMaxWidth().aspectRatio(1f).align(Alignment.Center))
             }else{
                 if (item.file!= null){
                     Image(
@@ -148,7 +147,7 @@ fun PictureCardEx(
                             painter = painterResource(id = R.drawable.ic_error_picture)
                         )
                 }else{
-                    Image(
+                        Image(
                         modifier = Modifier.fillMaxWidth().aspectRatio(1f).clip(RoundedCornerShape(2.dp)),
                         contentDescription = null,
                         contentScale = ContentScale.Crop,
