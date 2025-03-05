@@ -11,6 +11,7 @@ import android.graphics.ImageFormat
 import android.graphics.YuvImage
 import android.os.Environment
 import android.provider.MediaStore
+import android.util.Log
 import android.widget.Toast
 import androidx.camera.core.CameraControl
 import androidx.camera.core.CameraSelector
@@ -23,6 +24,8 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -36,13 +39,17 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Card
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -67,7 +74,9 @@ import androidx.core.net.toUri
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import coil.compose.rememberAsyncImagePainter
 import com.hezae.apam.R
+import com.hezae.apam.models.shemas.RequestModel
 import com.hezae.apam.tools.MQTTManager
+import com.hezae.apam.tools.UserInfo
 import com.hezae.apam.ui.activities.CameraActivity
 import com.hezae.apam.ui.dialogs.CameraDialog
 import java.io.ByteArrayOutputStream
@@ -87,11 +96,16 @@ fun CameraScreen(modifier: Modifier = Modifier) {
     var cameraProvider by remember { mutableStateOf<ProcessCameraProvider?>(null) }
     var cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
     var previewView: PreviewView? by remember { mutableStateOf(null) }
-    val zoomState = remember { mutableFloatStateOf(1f) }
+    val zoomState = remember { mutableFloatStateOf(0.3f) }
     var imageAnalysis by remember { mutableStateOf<ImageAnalysis?>(null) }
     var outBitmap by remember { mutableStateOf<Bitmap?>(null) }
     //显示处理后的结果
     var showResult by remember { mutableStateOf(false) }
+    val items = listOf("bayanihan", "lazy", "mosaic", "starry", "tokyo_ghoul")
+    //模型编号
+    var modelSn by remember { mutableIntStateOf(1) }
+    //是否显示模型选择器
+    var showModelSelector by remember { mutableStateOf(false) }
     //当前时间
     var lastTime = System.currentTimeMillis()
     LaunchedEffect(Unit) {
@@ -121,24 +135,27 @@ fun CameraScreen(modifier: Modifier = Modifier) {
                 .setOutputImageRotationEnabled(true)
                 .build()
             imageAnalysis!!.setAnalyzer(Executors.newFixedThreadPool(2)) { image ->
-                val currentTime = System.currentTimeMillis()
-                if (currentTime - lastTime > 10) {
-                    val bitmap: Bitmap = image.toBitmap()
-                    val scaledBitmap = Bitmap.createScaledBitmap(
-                        bitmap,
-                        image.width,
-                        image.height,
-                        true
-                    ) // 可以调整为合适分辨率
-                    val byteArrayOutputStream = ByteArrayOutputStream()
-                    scaledBitmap.compress(
-                        Bitmap.CompressFormat.JPEG,
-                        30,
-                        byteArrayOutputStream
-                    )  // 设置较低的压缩质量
-                    val byteArray = byteArrayOutputStream.toByteArray()
-                    MQTTManager.publishMessage("UserEvent", byteArray)
-                    lastTime = currentTime
+                if (showResult) {
+                    val currentTime = System.currentTimeMillis()
+                    if (currentTime - lastTime > 50) {
+                        val bitmap: Bitmap = image.toBitmap()
+                        val scaledBitmap = Bitmap.createScaledBitmap(
+                            bitmap,
+                            (image.width * 0.8).toInt(),
+                            (image.height * 0.8).toInt(),
+                            true
+                        ) // 可以调整为合适分辨率
+                        val byteArrayOutputStream = ByteArrayOutputStream()
+                        scaledBitmap.compress(
+                            Bitmap.CompressFormat.JPEG,
+                            50,
+                            byteArrayOutputStream
+                        )
+                        val byteArray = byteArrayOutputStream.toByteArray()
+                        val requestModel = RequestModel(modelSn, UserInfo.userToken)
+                        MQTTManager.publishMessage("UserEvent", requestModel, byteArray)
+                        lastTime = currentTime
+                    }
                 }
                 image.close()
             }
@@ -180,7 +197,8 @@ fun CameraScreen(modifier: Modifier = Modifier) {
             Box(
                 Modifier
                     .fillMaxWidth()
-                    .weight(1f)) {
+                    .weight(1f)
+            ) {
                 if (previewView != null) {
                     AndroidView(
                         modifier = Modifier
@@ -216,7 +234,8 @@ fun CameraScreen(modifier: Modifier = Modifier) {
             Box(
                 Modifier
                     .fillMaxWidth()
-                    .weight(1f)) {
+                    .weight(1f)
+            ) {
                 Image(
                     painter = rememberAsyncImagePainter(R.drawable.ic_travel),
                     contentDescription = "camera",
@@ -238,7 +257,7 @@ fun CameraScreen(modifier: Modifier = Modifier) {
                     Toast.makeText(context, "请先初始化相机", Toast.LENGTH_SHORT).show()
                 } else {
                     Toast.makeText(context, "正在拍照", Toast.LENGTH_SHORT).show()
-                    takePicture(context, imageCapture!!) {
+                    takePicture(context, imageCapture!!, showResult) {
                         image = it
                         showDialog = true
                     }
@@ -266,6 +285,36 @@ fun CameraScreen(modifier: Modifier = Modifier) {
                         // 重新创建 Preview
                         val preview = Preview.Builder().build()
                         preview.surfaceProvider = previewView!!.surfaceProvider
+
+                        imageAnalysis = ImageAnalysis.Builder()
+                            .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                            .setOutputImageRotationEnabled(true)
+                            .build()
+                        imageAnalysis!!.setAnalyzer(Executors.newFixedThreadPool(2)) { image ->
+                            if (showResult) {
+                                val currentTime = System.currentTimeMillis()
+                                if (currentTime - lastTime > 50) {
+                                    val bitmap: Bitmap = image.toBitmap()
+                                    val scaledBitmap = Bitmap.createScaledBitmap(
+                                        bitmap,
+                                        (image.width * 0.8).toInt(),
+                                        (image.height * 0.8).toInt(),
+                                        true
+                                    ) // 可以调整为合适分辨率
+                                    val byteArrayOutputStream = ByteArrayOutputStream()
+                                    scaledBitmap.compress(
+                                        Bitmap.CompressFormat.JPEG,
+                                        50,
+                                        byteArrayOutputStream
+                                    )
+                                    val byteArray = byteArrayOutputStream.toByteArray()
+                                    val requestModel = RequestModel(modelSn, UserInfo.userToken)
+                                    MQTTManager.publishMessage("UserEvent", requestModel, byteArray)
+                                    lastTime = currentTime
+                                }
+                            }
+                            image.close()
+                        }
                         // 重新创建 ImageCapture
                         imageCapture = ImageCapture.Builder().setJpegQuality(100).build()
                         // 重新绑定生命周期和用例
@@ -273,6 +322,7 @@ fun CameraScreen(modifier: Modifier = Modifier) {
                             context as CameraActivity,
                             cameraSelector,
                             preview,
+                            imageAnalysis,
                             imageCapture
                         )
                         // 更新 cameraControl
@@ -300,11 +350,50 @@ fun CameraScreen(modifier: Modifier = Modifier) {
                     modifier = Modifier.size(32.dp)
                 )
             }
+
+            //选择器
+            if (showResult) {
+                TextButton({
+                    showModelSelector = !showModelSelector
+                }) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(R.drawable.ic_more),
+                            contentDescription = "选择器",
+                            modifier = Modifier.size(32.dp)
+                        )
+                        Text(text = "模型：${items[modelSn - 1]}")
+                    }
+                }
+            }
+            DropdownMenu(
+                expanded = showModelSelector,
+                onDismissRequest = { showModelSelector = false },
+                modifier = Modifier
+                    .background(Color.Transparent)
+                    .border(
+                        width = 1.dp,
+                        color = Color.Black,
+                        shape = RoundedCornerShape(8.dp)
+                    )
+                    .padding(8.dp)
+            ) {
+                for (index in items.indices) {
+                    DropdownMenuItem(
+                        text = { Text(items[index]) },
+                        onClick = {
+                            modelSn = index + 1
+                            Log.d("modelSn", modelSn.toString())
+                            showModelSelector = false
+                        }
+                    )
+                }
+            }
         }
     }
 
 
-    if (showDialog&& image != null) {
+    if (showDialog && image != null) {
         CameraDialog(
             image,
             {
@@ -327,25 +416,31 @@ fun CameraScreen(modifier: Modifier = Modifier) {
 private fun takePicture(
     context: Context,
     imageCapture: ImageCapture,
+    showResult: Boolean,
     onImageCaptured: (File?) -> Unit
 ) {
     val imageFile = File(
         context.getExternalFilesDir(Environment.DIRECTORY_PICTURES),
         "${System.currentTimeMillis()}.jpg"
     )
-    val outputOptions = ImageCapture.OutputFileOptions.Builder(imageFile).build()
-    imageCapture.takePicture(outputOptions, ContextCompat.getMainExecutor(context),
-        object : ImageCapture.OnImageSavedCallback {
-            override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                onImageCaptured(imageFile)
-            }
+    if (showResult) {
+        imageFile.writeBytes(MQTTManager.pictureByteArray.value!!)
+        onImageCaptured(imageFile)
+    } else {
+        val outputOptions = ImageCapture.OutputFileOptions.Builder(imageFile).build()
+        imageCapture.takePicture(outputOptions, ContextCompat.getMainExecutor(context),
+            object : ImageCapture.OnImageSavedCallback {
+                override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
+                    onImageCaptured(imageFile)
+                }
 
-            override fun onError(exception: ImageCaptureException) {
-                // 处理错误
-                exception.printStackTrace() // 打印错误堆栈
+                override fun onError(exception: ImageCaptureException) {
+                    // 处理错误
+                    exception.printStackTrace() // 打印错误堆栈
+                }
             }
-        }
-    )
+        )
+    }
 }
 
 private fun saveImageToGallery(context: Context, file: File) {

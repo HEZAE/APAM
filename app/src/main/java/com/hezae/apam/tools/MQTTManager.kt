@@ -3,6 +3,7 @@ package com.hezae.apam.tools
 import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
+import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -19,13 +20,14 @@ import org.eclipse.paho.mqttv5.client.persist.MqttDefaultFilePersistence
 import org.eclipse.paho.mqttv5.common.MqttException
 import org.eclipse.paho.mqttv5.common.MqttMessage
 import org.eclipse.paho.mqttv5.common.packet.MqttProperties
+import org.eclipse.paho.mqttv5.common.packet.UserProperty
 import java.util.UUID
 
 object MQTTManager : MqttCallback {
     private var mqttClient: MqttAsyncClient? = null // MQTT 客户端实例
     private lateinit var mqttConnectionOptions: MqttConnectionOptions
     private var isInitialized = false
-    private val SERVER_URI = "tcp://192.168.20.27:1883"
+    private val SERVER_URI = "tcp://10.0.0.201:1883"
     private val CLIENT_ID = UserInfo.username
     private val USERNAME = "admin"
     private val PASSWORD = "public"
@@ -113,11 +115,14 @@ object MQTTManager : MqttCallback {
     }
 
     //发送消息
-    fun publishMessage(topic: String, message:ByteArray) {
+    fun <T> publishMessage(topic: String, info:T,message:ByteArray) {
         if (isInitialized) {
            if(mqttClient!=null){
                if (mqttClient!!.isConnected){
-                   val mqttMessage = MqttMessage(message)
+                   val userProperty = MqttProperties().apply {
+                       userProperties.add(UserProperty( "info", Gson().toJson(info)))
+                   }
+                   val mqttMessage = MqttMessage(message, 0, false, userProperty)
                    mqttClient!!.publish(topic, mqttMessage, null, object : MqttActionListener {
                        override fun onSuccess(asyncActionToken: IMqttToken?) {
                            Log.d("MQTT", "消息发送成功: $topic")

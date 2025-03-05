@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -44,11 +45,11 @@ fun CameraDialog(
     BasicAlertDialog(
         onDismissRequest = onCancel,
     ) {
-        Card(Modifier.fillMaxWidth().fillMaxHeight(0.95f)) {
+        Card(Modifier.fillMaxWidth()) {
             Row(Modifier.fillMaxWidth().padding(4.dp), horizontalArrangement = Arrangement.Center){
                 Text("是否保存拍摄的照片？", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold, fontSize = 16.sp)
             }
-            Box(Modifier.fillMaxWidth().weight(1f).horizontalScroll(rememberScrollState())){
+            Box(Modifier.fillMaxWidth().verticalScroll(rememberScrollState())){
                 Row(Modifier.fillMaxHeight().padding(4.dp)){
                     if(image==null){
                         Image(
