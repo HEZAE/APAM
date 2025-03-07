@@ -43,7 +43,7 @@ class  LoginViewModel: ViewModel() {
                 result = ApiResult(
                     success = false,
                     code = 500,
-                    msg = e.message ?: "Unknown error"
+                    msg = "登录失败，网络连接异常"
                 )
             }finally {
                 isLoading.value = false
