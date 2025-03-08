@@ -3,6 +3,7 @@ package com.hezae.apam.ui.screens
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -30,6 +31,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -62,22 +66,32 @@ fun LoginScreen(modifier: Modifier, loginViewModel: LoginViewModel, innerPadding
             model = "file:///android_asset/loginBg.png",
         )
 
-        //是否记住密码
-        var rememberCheckedState by remember { mutableStateOf(true) }
-        //是否同意隐私条款
-        var privacyCheckedState by remember { mutableStateOf(true) }
-
         //蓝色背景
         Image(
             painter = backgroundPainter,
             contentDescription = "login_background",
             modifier = Modifier
-                .blur(5.dp)
                 .fillMaxWidth()
                 .matchParentSize(),
             contentScale = ContentScale.Crop,
             alpha = 0.75f
         )
+        Canvas(
+            modifier = Modifier
+                .fillMaxWidth()
+                .matchParentSize()
+                .blur(10.dp)
+        ) {
+            drawRect(
+                brush = Brush.linearGradient(
+                    colors = listOf(Color(0xFFF3F3F3).copy(0.75f), Color(0xFF83D1EF).copy(0.75f)), // 渐变颜色
+                    start = Offset(size.width, 0f),
+                    end = Offset(0f, size.height)
+                ),
+                size = size
+            )
+        }
+
         AnimatedVisibility(
             visible = isDisabled,
             enter = fadeIn(),
@@ -88,10 +102,10 @@ fun LoginScreen(modifier: Modifier, loginViewModel: LoginViewModel, innerPadding
                     .padding(innerPadding)
                     .fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Bottom
             ) {
+                Spacer(Modifier.height(300.dp))
                 Text(
-                    text = "AI摄影助手 Design by HSS",
+                    text = "AI摄影助手",
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary.copy(0.75f),
                     fontSize = 24.sp
@@ -134,7 +148,26 @@ fun LoginScreen(modifier: Modifier, loginViewModel: LoginViewModel, innerPadding
                         }
                     }
                 }
-                Spacer(Modifier.height(300.dp))
+            }
+        }
+
+        AnimatedVisibility(
+            visible = isDisabled,
+            enter = fadeIn(),
+            exit = fadeOut(),
+        ) {
+            Column(
+                Modifier
+                    .padding(innerPadding)
+                    .fillMaxSize(),
+                verticalArrangement = Arrangement.Bottom,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "Design by HSS",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 12.sp
+                )
             }
         }
 

@@ -42,7 +42,7 @@ open class Picture(
     val width: Float,        // 图片宽度
     val height: Float,       // 图片高度
     val size:Long,
-    var level: Int = 1       // 权限等级（默认值1）
+    var level: String= "1"      // 权限等级（默认值1）
 )
 
 open class PictureItem(
@@ -55,7 +55,7 @@ open class PictureItem(
     width: Float,        // 图片宽度
     height: Float,       // 图片高度
     size: Long,
-    level: Int = 1,      // 权限等级（默认值1）
+    level: String = "1",      // 权限等级（默认值1）
     isInit: Boolean = false,
     isLoading: Boolean = false, // 是否正在加载
     isError: Boolean = false, // 是否加载失败
@@ -89,7 +89,7 @@ class PictureItemEx(
     width: Float,          // 图片宽度
     height: Float,         // 图片高度
     size: Long,
-    level: Int = 1,        // 权限等级（默认值1）
+    level: String = "1",        // 权限等级（默认值1）
     isInit: Boolean = false,
     isLoading: Boolean = false, // 是否正在加载
     isError: Boolean = false, // 是否加载失败

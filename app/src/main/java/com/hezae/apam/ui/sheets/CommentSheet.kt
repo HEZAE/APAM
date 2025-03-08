@@ -138,9 +138,7 @@ fun CommentSheet(
                                                     content = text.value,
                                                     topicId = topicId,
                                                     createdAt = LocalDateTime.now().toString(),
-                                                    parentCommentId = replyCommentId,
-                                                    prefixCommentId = "",
-                                                    suffixCommentId = ""
+                                                    parentCommentId = -1,
                                                 ),
                                             ) {
                                                 if (it.success) {

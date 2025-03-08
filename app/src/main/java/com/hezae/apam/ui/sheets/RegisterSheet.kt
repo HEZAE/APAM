@@ -39,7 +39,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hezae.apam.tools.UserInfo
@@ -55,7 +57,7 @@ fun RegisterSheet(
     loginViewModel: LoginViewModel,
     innerPadding: PaddingValues
 ) {
-    val sheetState = rememberModalBottomSheetState()
+    val sheetState = rememberModalBottomSheetState(true)
     var privacyCheckedState by remember { mutableStateOf(true) }
     val context = LocalContext.current
     var username by remember { mutableStateOf(TextFieldValue("")) }
@@ -72,126 +74,190 @@ fun RegisterSheet(
         sheetState = sheetState,
         containerColor = Color.Transparent
     ) {
-        Box(
-            Modifier
-                .fillMaxWidth()
-                .padding(4.dp)
-        ) {
-            Card(
+        Column {
+            Box(
                 Modifier
                     .fillMaxWidth()
-                    .padding(4.dp),
-                elevation = CardDefaults.cardElevation(5.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.onPrimary,
-                    contentColor = MaterialTheme.colorScheme.primary,
-                )
+                    .padding(4.dp)
             ) {
-                Spacer(Modifier.height(10.dp))
-                TextField(
-                    enabled = !loginViewModel.isLoading.value,
-                    modifier = Modifier
+                Card(
+                    Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 20.dp, vertical = 5.dp),
-                    value = username,
-                    onValueChange = { username = it },
-                    colors = TextFieldDefaults.colors(
-                        focusedTextColor = MaterialTheme.colorScheme.primary,
-                    ),
-                    label = { Text(text = "用户名") })
-                TextField(
-                    enabled = !loginViewModel.isLoading.value,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 20.dp, vertical = 5.dp),
-                    value = password,
-                    colors = TextFieldDefaults.colors(
-                        focusedTextColor = MaterialTheme.colorScheme.primary,
-                    ),
-                    onValueChange = { password = it },
-                    label = { Text(text = "密码") })
-                TextField(
-                    enabled = !loginViewModel.isLoading.value,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 20.dp, vertical = 5.dp),
-                    value = email,
-                    colors = TextFieldDefaults.colors(
-                        focusedTextColor = MaterialTheme.colorScheme.primary,
-                    ),
-                    onValueChange = { email = it },
-                    label = { Text(text = "邮箱") })
-
-                TextField(
-                    enabled = !loginViewModel.isLoading.value,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 20.dp, vertical = 5.dp),
-                    value = code,
-                    colors = TextFieldDefaults.colors(
-                        focusedTextColor = MaterialTheme.colorScheme.primary,
-                    ),
-                    onValueChange = { code = it },
-                    label = { Text(text = "验证码") })
-                Row(
-                    Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
+                        .padding(10.dp),
+                    elevation = CardDefaults.cardElevation(5.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.onPrimary,
+                        contentColor = MaterialTheme.colorScheme.primary,
+                    )
                 ) {
-                    Row(Modifier, verticalAlignment = Alignment.CenterVertically) {
-                        RadioButton(
-                            selected = privacyCheckedState,
-                            onClick = { privacyCheckedState = !privacyCheckedState },
-                            enabled = !loginViewModel.isLoading.value
-                        )
-                        TextButton({}, enabled = !loginViewModel.isLoading.value) {
-                            Text(
-                                "阅读并同意《APAM用户协议》",
-                                fontSize = 12.sp
+                    Spacer(Modifier.height(10.dp))
+                    TextField(
+                        enabled = !loginViewModel.isLoading.value,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal =30.dp, vertical = 5.dp),
+                        value = username,
+                        singleLine = true,
+                        onValueChange = { username = it },
+                        colors = TextFieldDefaults.colors(
+                            focusedTextColor = MaterialTheme.colorScheme.primary,
+                        ),
+                        label = { Text(text = "用户名") })
+                    TextField(
+                        enabled = !loginViewModel.isLoading.value,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 30.dp, vertical = 5.dp),
+                        value = password,
+                        singleLine = true,
+                        colors = TextFieldDefaults.colors(
+                            focusedTextColor = MaterialTheme.colorScheme.primary,
+                        ),
+                        visualTransformation = PasswordVisualTransformation(),
+                        onValueChange = { password = it },
+                        label = { Text(text = "密码") })
+                    TextField(
+                        enabled = !loginViewModel.isLoading.value,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 30.dp, vertical = 5.dp),
+                        value = nickname,
+                        singleLine = true,
+                        colors = TextFieldDefaults.colors(
+                            focusedTextColor = MaterialTheme.colorScheme.primary,
+                        ),
+
+                        onValueChange = { nickname = it },
+                        label = { Text(text = "昵称") })
+                    TextField(
+                        enabled = !loginViewModel.isLoading.value,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 30.dp, vertical = 5.dp),
+                        value = email,
+                        singleLine = true,
+                        colors = TextFieldDefaults.colors(
+                            focusedTextColor = MaterialTheme.colorScheme.primary,
+                        ),
+
+                        onValueChange = { email = it },
+                        label = { Text(text = "邮箱") })
+
+                    TextField(
+                        enabled = !loginViewModel.isLoading.value,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 30.dp, vertical = 5.dp),
+                        value = code,
+                        singleLine = true,
+                        colors = TextFieldDefaults.colors(
+                            focusedTextColor = MaterialTheme.colorScheme.primary,
+                        ),
+                        onValueChange = { code = it },
+                        label = { Text(text = "验证码") })
+                    Row(
+                        Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(Modifier, verticalAlignment = Alignment.CenterVertically) {
+                            RadioButton(
+                                selected = privacyCheckedState,
+                                onClick = { privacyCheckedState = !privacyCheckedState },
+                                enabled = !loginViewModel.isLoading.value
                             )
+                            TextButton({}, enabled = !loginViewModel.isLoading.value) {
+                                Text(
+                                    "阅读并同意《APAM用户协议》",
+                                    fontSize = 12.sp
+                                )
+                            }
+                        }
+                    }
+                    Row(
+                        Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Spacer(Modifier.width(4.dp))
+                        Spacer(Modifier.width(4.dp))
+
+                        TextButton(enabled = !loginViewModel.isLoading.value, onClick = {
+                            if (privacyCheckedState) {
+                                if (email.text.isNotEmpty() && username.text.isNotEmpty() &&nickname.text.isNotEmpty()&& password.text.isNotEmpty() && code.text.isNotEmpty()) {
+                                    loginViewModel.register(
+                                        username.text,
+                                        password.text,
+                                        nickname.text,
+                                        email.text,
+                                        code.text
+                                    ) {
+                                        if (it.success) {
+                                            Toast.makeText(context, "注册成功", Toast.LENGTH_SHORT)
+                                                .show()
+                                            isDisplay.value = false
+                                        } else {
+                                            Toast.makeText(context, it.msg, Toast.LENGTH_SHORT)
+                                                .show()
+                                        }
+                                    }
+                                }else{
+                                    Toast.makeText(context, "请填写正确的注册信息", Toast.LENGTH_SHORT).show()
+                                }
+                            }else {
+                                Toast.makeText(
+                                    context,
+                                    "请先阅读并同意用户协议",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        }
+                        ) {
+                            Text(text = "注册", fontSize = 12.sp)
+                        }
+                        TextButton(enabled = !loginViewModel.isLoading.value, onClick = {
+                            if (email.text.isNotEmpty()&& username.text.isNotEmpty()){
+                                //检查邮箱格式
+                                val emailRegex = Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")
+                                if (email.text.matches(emailRegex)){
+                                    loginViewModel.getVerificationCode(email.text, username.text){
+                                        if (it.success){
+                                            Toast.makeText(context, "验证码发送成功", Toast.LENGTH_SHORT).show()
+                                        }else{
+                                            Toast.makeText(context, it.msg, Toast.LENGTH_SHORT).show()
+                                        }
+                                    }
+                                }else{
+                                    Toast.makeText(context, "邮箱格式错误", Toast.LENGTH_SHORT).show()
+                                }
+                            }else{
+                                Toast.makeText(context, "请输入邮箱和用户名", Toast.LENGTH_SHORT).show()
+                            }
+                        }) {
+                            Text(text = "获取验证码", fontSize = 12.sp)
                         }
                     }
                 }
-                Row(
-                    Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Spacer(Modifier.width(4.dp))
-                    Spacer(Modifier.width(4.dp))
-
-                    TextButton(enabled = !loginViewModel.isLoading.value, onClick = {
-                    }) {
-                        Text(text = "注册", fontSize = 12.sp)
-                    }
-                    TextButton(enabled = !loginViewModel.isLoading.value, onClick = {
-                    }) {
-                        Text(text = "获取验证码", fontSize = 12.sp)
-                    }
-                }
-            }
-
-
-            Spacer(Modifier.height(15.dp))
-            if (loginViewModel.isLoading.value) {
-                Box(
-                    Modifier
-                        .padding(4.dp)
-                        .matchParentSize()
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(Color.LightGray.copy(alpha = 0.3f))
-                ) {
-                    Column(
-                        Modifier.align(Alignment.Center),
-                        horizontalAlignment = Alignment.CenterHorizontally,
+                if (loginViewModel.isLoading.value) {
+                    Box(
+                        Modifier
+                            .padding(4.dp)
+                            .matchParentSize()
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(Color.LightGray.copy(alpha = 0.3f))
                     ) {
-                        CircularProgressIndicator(
-                            Modifier
-                                .padding(horizontal = 20.dp)
-                                .width(50.dp)
-                                .aspectRatio(1f)
-                        )
-                        Text("正在注册...", Modifier.padding(horizontal = 20.dp))
+                        Column(
+                            Modifier.align(Alignment.Center),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
+                            CircularProgressIndicator(
+                                Modifier
+                                    .padding(horizontal = 20.dp)
+                                    .width(50.dp)
+                                    .aspectRatio(1f)
+                            )
+                            Text("正在注册...", Modifier.padding(horizontal = 20.dp))
+                        }
                     }
                 }
             }

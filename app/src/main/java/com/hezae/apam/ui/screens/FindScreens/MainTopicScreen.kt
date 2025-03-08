@@ -221,7 +221,7 @@ fun MainTopicScreen(
             )) {
             LazyVerticalGrid(
                 columns = GridCells.Fixed(5),
-                Modifier.fillMaxWidth().height(80.dp).padding(5.dp)
+                Modifier.fillMaxWidth().height(160.dp).padding(5.dp)
             ) {
                 items(typeOptions.size) { index ->
                     // 获取当前项的键和值

@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hezae.apam.datas.ApiResult
 import com.hezae.apam.models.UserLogin
+import com.hezae.apam.models.UserRegister
 import com.hezae.apam.tools.RetrofitInstance
 import kotlinx.coroutines.launch
 import java.security.MessageDigest
@@ -13,13 +14,14 @@ import java.security.MessageDigest
 
 class  LoginViewModel: ViewModel() {
     val isLoading  = mutableStateOf(false)
+    private val api =  RetrofitInstance.userApi
     //登录请求
     fun login(username:String, password:String, onFinished: (ApiResult<String>) -> Unit){
         isLoading.value = true
         var result: ApiResult<String>?  = null
         viewModelScope.launch {
             try {
-                val response = RetrofitInstance.api.login(UserLogin(username, password.toMD5()))
+                val response = api.login(UserLogin(username, password.toMD5()))
                 if (response.isSuccessful) {
                     if (response.body() != null) {
                         result = response.body()!!
@@ -48,6 +50,65 @@ class  LoginViewModel: ViewModel() {
             }finally {
                 isLoading.value = false
                 onFinished(result!!)
+            }
+        }
+    }
+
+    //获取验证码
+    fun getVerificationCode(email:String,username:String, onFinished: (ApiResult<String>) -> Unit){
+        isLoading.value = true
+        viewModelScope.launch {
+            try {
+                val response = api.getCode(email,username)
+                if (response.isSuccessful) {
+                    onFinished(response.body()!!)
+                    isLoading.value = false
+                }else{
+                    onFinished(ApiResult(
+                        success = false,
+                        code = response.code(),
+                        msg = response.message(),
+                    ))
+                    isLoading.value = false
+                }
+            }
+            catch (e: Exception) {
+                Log.e("获取验证码异常", e.message ?: "Unknown error" )
+                onFinished(ApiResult(
+                    success = false,
+                    code = 500,
+                    msg = "请求异常"
+                ))
+                isLoading.value = false
+            }
+        }
+    }
+
+    //注册
+    fun register(username:String, password:String,nickname:String,email:String, code:String, onFinished: (ApiResult<String>) -> Unit){
+        isLoading.value = true
+        viewModelScope.launch {
+            try {
+                val response = api.register(UserRegister(username, password.toMD5(),nickname,email,code))
+                if (response.isSuccessful) {
+                    onFinished(response.body()!!)
+                    isLoading.value = false
+                }else{
+                    onFinished(ApiResult(
+                        success = false,
+                        code = response.code(),
+                        msg = response.message(),
+                    ))
+                    isLoading.value = false
+                }
+            }catch ( e: Exception){
+                Log.e("注册异常", e.message ?: "Unknown error" )
+                onFinished(ApiResult(
+                    success = false,
+                    code = 500,
+                    msg = "请求异常"
+                ))
+                isLoading.value = false
             }
         }
     }

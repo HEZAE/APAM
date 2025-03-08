@@ -1,5 +1,6 @@
 package com.hezae.apam.ui.screens.FindScreens
 
+import android.app.Activity
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -38,9 +39,13 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.Indicator
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -97,8 +102,16 @@ fun TopicScreen(
     val comment  =  remember { mutableStateOf("") }
     //是否显示评论输入
     var showComment by remember { mutableStateOf(false) }
+    var isRefreshing by remember { mutableStateOf(false) }
+    val refreshState = rememberPullToRefreshState()
+    //回复的评论的id
+    var replyCommentId by remember { mutableStateOf(0) }
 
     fun getComments() {
+        isRefreshing = true
+        if (comments.isNotEmpty()){
+            comments.clear()
+        }
         viewModel.getTopComments(
             token = UserInfo.userToken,
             topicId = item.id,
@@ -115,8 +128,7 @@ fun TopicScreen(
                                 topicId = i.topicId,
                                 userId = i.userId,
                                 parentCommentId = i.parentCommentId,
-                                prefixCommentId = i.prefixCommentId,
-                                suffixCommentId = i.suffixCommentId,
+                                childCommentsCount = i.childCommentsCount,
                                 subComments  = mutableStateListOf()
                             ))
                         }
@@ -124,12 +136,13 @@ fun TopicScreen(
                 }else{
                     Toast.makeText(context, it.msg, Toast.LENGTH_SHORT).show()
                 }
+                isRefreshing = false
             }
         )
     }
-
     LaunchedEffect(Unit) {
         coroutineScope.launch {
+
             for (pictureId in item.pictures) {
                 isPictureLoading.value = true
                 pictureViewModel.getPicture(
@@ -173,20 +186,34 @@ fun TopicScreen(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onPrimary,contentColor = MaterialTheme.colorScheme.primary)
     ) {
         //标题
-        Row(
-            Modifier
-                .fillMaxWidth().padding(top = innerPadding.calculateTopPadding()),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Text(
-                text = item.title,
-                fontSize = 16.sp,
-                lineHeight = 18.sp,
-                maxLines = 1,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
-            )
+        Box(Modifier.fillMaxWidth().padding(top = innerPadding.calculateTopPadding())){
+            Row(
+                Modifier
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = item.title,
+                    fontSize = 16.sp,
+                    lineHeight = 18.sp,
+                    maxLines = 1,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(4.dp)
+                )
+            }
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_share),
+                    contentDescription = "返回",
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier
+                        .align(Alignment.CenterStart)
+                        .padding(start = 10.dp)
+                        .size(22.dp).clickable {
+                            (context as Activity).finish()
+                        }
+                )
         }
         //内容
         Column(
@@ -355,17 +382,31 @@ fun TopicScreen(
                 ) {
                     Text("评论区", fontSize = 14.sp, color = MaterialTheme.colorScheme.primary)
                 }
-
-                LazyColumn(Modifier.fillMaxWidth().weight(1f)){
-                    items(comments){
-                        CommentCard(Modifier.fillMaxWidth(),it,viewModel){
-
-                        }
+                PullToRefreshBox(modifier = Modifier.fillMaxWidth().weight(1f),
+                    isRefreshing = isRefreshing,
+                    state = refreshState,
+                    onRefresh = {
+                        getComments()
+                    },
+                    indicator = {
+                        Indicator(
+                            modifier = Modifier.align(Alignment.TopCenter),
+                            isRefreshing = isRefreshing,
+                            state = refreshState,
+                            color = MaterialTheme.colorScheme.onPrimary,
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            threshold = 60.dp
+                        )
                     }
+                ) {
+                    LazyColumn(Modifier.fillMaxWidth()) {
+                        items(comments) {
+                            CommentCard(Modifier.fillMaxWidth(), it, viewModel) {
+                            }
+                        }
 
+                    }
                 }
-
-
             }
         }
         Card(
@@ -450,11 +491,6 @@ fun TopicScreen(
                     {}
                 ) {
                     Text(text = "收藏")
-                }
-                TextButton(
-                    {}
-                ) {
-                    Text(text = "评论")
                 }
             }
         }

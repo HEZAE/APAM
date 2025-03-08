@@ -5,7 +5,7 @@ class User(
     val username: String,
     val nickname: String,
     val email: String,
-    val level: Int,
+    val level: String,
     val capacity: Float,
     val capacity_used: Float,
     val count: Int,

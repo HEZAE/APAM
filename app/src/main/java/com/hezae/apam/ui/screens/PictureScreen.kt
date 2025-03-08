@@ -196,6 +196,7 @@ fun PictureScreen(innerPadding: PaddingValues, viewModel: PictureViewModel) {
                     }
                     Row(Modifier.weight(1f), horizontalArrangement = Arrangement.End) {
                         IconButton(
+                            enabled = !isRefreshing,
                             onClick = {
                                 getPicture()
                             },

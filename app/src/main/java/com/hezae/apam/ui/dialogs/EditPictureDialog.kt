@@ -76,7 +76,7 @@ fun EditPictureDialog(
     var isLoading by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
-    val public = remember { mutableStateOf(item.level == 1) }
+    val public = remember { mutableStateOf(item.level == "1") }
 
     BasicAlertDialog(
         onDismissRequest = {
@@ -224,7 +224,7 @@ fun EditPictureDialog(
                                     width = item.width,
                                     height = item.height,
                                     size = item.size,
-                                    level = if (public.value) 1 else 2
+                                    level = if (public.value) "1" else "2"
                                 )
                                 viewModel.updatePicture(UserInfo.userToken, picture){
                                     if (it.success){

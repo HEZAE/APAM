@@ -164,23 +164,7 @@ fun Avatar(
                     )
                     Row(verticalAlignment = Alignment.CenterVertically){
 
-                        val textLevel = when (mainViewModel.user.value.level) {
-                            1 -> {
-                                "[普通用户]"
-                            }
-
-                            2 -> {
-                                "[高级用户]"
-                            }
-
-                            3 -> {
-                                "[管理员]"
-                            }
-
-                            else -> {
-                                "[未知]"
-                            }
-                        }
+                        val textLevel = mainViewModel.user.value.level
                         Text(
                             textLevel,
                             fontSize = 12.sp,

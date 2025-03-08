@@ -15,13 +15,14 @@ import com.hezae.apam.tools.RetrofitInstance
 import kotlinx.coroutines.launch
 
 class MainViewModel: ViewModel() {
-    var user  = mutableStateOf( User("","","未知","",0,0.0f,0f, 0,0,""))
+    var user  = mutableStateOf( User("","","未知","","0",0.0f,0f, 0,0,""))
     private var isLoadingUser = mutableStateOf(false)
+    val api = RetrofitInstance.userApi
     fun getUser(token:String,onFinished : (ApiResult<String>) -> Unit){
         isLoadingUser.value = true
         viewModelScope.launch {
             try {
-                val response = RetrofitInstance.api.getUserInfo("bearer $token")
+                val response = api.getUserInfo("bearer $token")
                 if (response.isSuccessful){
                     if(response.body() != null){
                         val date = response.body()!!.data

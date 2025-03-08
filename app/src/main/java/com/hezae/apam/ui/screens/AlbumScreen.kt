@@ -233,6 +233,7 @@ fun PictureScreen(modifier: Modifier = Modifier, viewModel: AlbumViewModel) {
                     )
                 }//刷新
                 IconButton(
+                    enabled = !isRefreshing,
                     onClick = {
                     },
                 )
@@ -312,13 +313,14 @@ fun PictureScreen(modifier: Modifier = Modifier, viewModel: AlbumViewModel) {
                         .fillMaxSize()
                         .padding(2.dp)
                 ) {
-                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Row(Modifier.fillMaxWidth().padding(start = 5.dp), verticalAlignment = Alignment.CenterVertically) {
                         Icon(
-                            imageVector = ImageVector.Companion.vectorResource(id = R.drawable.ic_share),
+                            imageVector = ImageVector.Companion.vectorResource(id = R.drawable.ic_private),
                             contentDescription = "filter",
                             Modifier.size(20.dp),
                             tint = MaterialTheme.colorScheme.primary
                         )
+                        Spacer(Modifier.width(2.dp))
                         Text(
                             text = "私有相册",
                             color = MaterialTheme.colorScheme.primary,
@@ -379,13 +381,14 @@ fun PictureScreen(modifier: Modifier = Modifier, viewModel: AlbumViewModel) {
                             )
                         }
                     }
-                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Row(Modifier.fillMaxWidth().padding(start = 5.dp), verticalAlignment = Alignment.CenterVertically) {
                         Icon(
-                            imageVector = ImageVector.Companion.vectorResource(id = R.drawable.ic_theme),
+                            imageVector = ImageVector.Companion.vectorResource(id = R.drawable.ic_public),
                             contentDescription = "filter",
                             Modifier.size(20.dp),
                             tint = MaterialTheme.colorScheme.primary
                         )
+                        Spacer(Modifier.width(2.dp))
                         Text(
                             text = "公有相册",
                             color = MaterialTheme.colorScheme.primary,

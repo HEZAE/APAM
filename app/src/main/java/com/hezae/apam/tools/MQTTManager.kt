@@ -27,7 +27,7 @@ object MQTTManager : MqttCallback {
     private var mqttClient: MqttAsyncClient? = null // MQTT 客户端实例
     private lateinit var mqttConnectionOptions: MqttConnectionOptions
     private var isInitialized = false
-    private val SERVER_URI = "tcp://10.0.0.201:1883"
+    private val SERVER_URI = "tcp://192.168.20.27:1883"
     private val CLIENT_ID = UserInfo.username
     private val USERNAME = "admin"
     private val PASSWORD = "public"
